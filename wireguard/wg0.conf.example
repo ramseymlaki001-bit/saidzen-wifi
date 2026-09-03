@@ -1,0 +1,32 @@
+# SaidZen WiFi - WireGuard server configuration
+# Save the completed file as /etc/wireguard/wg0.conf on the VPS.
+# Keep this file private. Never commit the real private key.
+#
+# Replace:
+#   <SERVER_PRIVATE_KEY> = private key generated on the VPS
+#   <ROUTER_PUBLIC_KEY>  = public key printed by the MikroTik router
+#   <VPN_IP>             = the same router VPN IP used in saidzen-router-setup.rsc
+
+[Interface]
+Address = 10.8.0.1/24
+ListenPort = 51820
+PrivateKey = <SERVER_PRIVATE_KEY>
+
+# Add one peer block for every router.
+[Peer]
+PublicKey = <ROUTER_PUBLIC_KEY>
+AllowedIPs = <VPN_IP>/32
+PersistentKeepalive = 25
+
+# Example for a second router:
+# [Peer]
+# PublicKey = <SECOND_ROUTER_PUBLIC_KEY>
+# AllowedIPs = 10.8.0.3/32
+
+# After saving:
+# sudo chmod 600 /etc/wireguard/wg0.conf
+# sudo systemctl enable --now wg-quick@wg0
+# sudo wg show
+#
+# The VPS firewall must allow UDP 51820.
+# MikroTik API traffic uses TCP 8728 over the VPN address only.

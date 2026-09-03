@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #eef7ff;
+  --color-brand-100: #d8ecff;
+  --color-brand-200: #b9deff;
+  --color-brand-300: #89cbff;
+  --color-brand-400: #52aeff;
+  --color-brand-500: #2a8dff;
+  --color-brand-600: #136df5;
+  --color-brand-700: #0c57e1;
+  --color-brand-800: #1047b6;
+  --color-brand-900: #143f8f;
+  --color-brand-950: #112857;
+
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+}
+
+body {
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2s ease-in-out infinite;
+}
+
+/* Print styles for vouchers */
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  body { background: white !important; }
+}
+
+.print-only { display: none; }
