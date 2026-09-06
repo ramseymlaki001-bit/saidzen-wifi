@@ -15,9 +15,9 @@ export async function POST(request: NextRequest) {
 
     const { profileId, count } = await request.json();
 
-    if (!profileId || !count || count < 1 || count > 200) {
+    if (!profileId || !count || count < 1 || count > 100) {
       return NextResponse.json(
-        { error: "Taarifa sahihi zinahitajika (profileId, count 1-200)" },
+        { error: "Taarifa sahihi zinahitajika (profileId, count 1-100)" },
         { status: 400 }
       );
     }
@@ -33,6 +33,10 @@ export async function POST(request: NextRequest) {
         { error: "Aina ya vocha haijapatikana" },
         { status: 404 }
       );
+    }
+
+    if (!Number.isInteger(profileId) || !Number.isInteger(count)) {
+      return NextResponse.json({ error: "Taarifa za vocha si sahihi" }, { status: 400 });
     }
 
     const [client] = await db
@@ -63,6 +67,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Ada ya mwezi haijalipiwa. Wasiliana na admin." },
         { status: 403 }
+      );
+    }
+
+    const storedVouchers = await db
+      .select({ id: vouchers.id })
+      .from(vouchers)
+      .where(eq(vouchers.clientId, client.id))
+      .limit(101);
+    if (storedVouchers.length + count > 100) {
+      return NextResponse.json(
+        {
+          error: `Router hii ina vocha ${storedVouchers.length}. Futa vocha zilizopo kwanza; kikomo ni 100 kwa router.`,
+          voucherLimit: 100,
+          currentCount: storedVouchers.length,
+        },
+        { status: 409 }
       );
     }
 

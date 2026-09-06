@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { voucherProfiles, clients } from "@/db/schema";
 import { eq, inArray, and } from "drizzle-orm";
+import { vouchers } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
@@ -137,3 +138,23 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getSession();
+    if (!session || (session.role !== "vendor" && session.role !== "admin")) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const profileId = Number(new URL(request.url).searchParams.get("id"));
+    if (!Number.isInteger(profileId) || profileId < 1) return NextResponse.json({ error: "Kifurushi si sahihi" }, { status: 400 });
+    const [profile] = await db.select({ id: voucherProfiles.id, clientId: voucherProfiles.clientId }).from(voucherProfiles).where(eq(voucherProfiles.id, profileId)).limit(1);
+    if (!profile) return NextResponse.json({ error: "Kifurushi hakijapatikana" }, { status: 404 });
+    if (session.role === "vendor") {
+      const [owned] = await db.select({ id: clients.id }).from(clients).where(and(eq(clients.id, profile.clientId), eq(clients.userId, session.userId))).limit(1);
+      if (!owned) return NextResponse.json({ error: "Router si wako" }, { status: 403 });
+    }
+    const linked = await db.select({ id: vouchers.id }).from(vouchers).where(eq(vouchers.profileId, profileId)).limit(1);
+    if (linked.length > 0) return NextResponse.json({ error: "Kifurushi kina vocha. Futa vocha zake kwanza ndipo ukifute." }, { status: 409 });
+    await db.delete(voucherProfiles).where(eq(voucherProfiles.id, profileId));
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Kosa la ndani" }, { status: 500 });
+  }
+}

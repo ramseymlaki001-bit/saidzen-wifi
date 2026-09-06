@@ -69,3 +69,21 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Kosa la ndani" }, { status: 500 });
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getSession();
+    if (!session || (session.role !== "vendor" && session.role !== "admin")) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const body = await request.json().catch(() => ({}));
+    const ids = Array.isArray(body.ids) ? body.ids.map(Number).filter((id: number) => Number.isInteger(id) && id > 0) : [];
+    const clientId = Number(body.clientId);
+    if (!Number.isInteger(clientId) || clientId < 1) return NextResponse.json({ error: "Router haijachaguliwa" }, { status: 400 });
+    const owned = await db.select({ id: clients.id }).from(clients).where(session.role === "vendor" ? and(eq(clients.id, clientId), eq(clients.userId, session.userId)) : eq(clients.id, clientId)).limit(1);
+    if (owned.length === 0) return NextResponse.json({ error: "Router si wako" }, { status: 403 });
+    const condition = ids.length > 0 ? and(eq(vouchers.clientId, clientId), inArray(vouchers.id, ids)) : eq(vouchers.clientId, clientId);
+    const result = await db.delete(vouchers).where(condition);
+    return NextResponse.json({ success: true, deleted: Number((result as unknown as Array<{ affectedRows?: number }>)[0]?.affectedRows ?? 0) });
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Kosa la ndani" }, { status: 500 });
+  }
+}

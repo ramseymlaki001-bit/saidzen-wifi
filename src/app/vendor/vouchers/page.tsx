@@ -68,6 +68,7 @@ export default function VouchersPage() {
     mikrotikProfile: "",
   });
   const [savingPackage, setSavingPackage] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   // Multi-router support
   const [routers, setRouters] = useState<Router[]>([]);
   const [selectedRouter, setSelectedRouter] = useState("");
@@ -174,8 +175,73 @@ export default function VouchersPage() {
     }
   }
 
+  async function handleDeletePackage(profileId: number) {
+    if (!window.confirm("Unataka kufuta kifurushi hiki?")) return;
+    setError("");
+    try {
+      const res = await authFetch(`/api/vouchers/profiles?id=${profileId}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Imeshindikana kufuta kifurushi");
+        return;
+      }
+      await loadData();
+    } catch {
+      setError("Kosa la mtandao. Jaribu tena.");
+    }
+  }
+
   function handlePrint() {
     window.print();
+  }
+
+  async function handleDownloadPdf() {
+    if (generatedVouchers.length === 0) return;
+    const { jsPDF } = await import("jspdf");
+    const doc = new jsPDF({ unit: "mm", format: "a4" });
+    doc.setFontSize(16);
+    doc.text(activeRouter?.businessName || "SaidZen WiFi", 15, 15);
+    doc.setFontSize(10);
+    generatedVouchers.forEach((v, index) => {
+      const column = index % 2;
+      const row = Math.floor((index % 16) / 2);
+      const x = 15 + column * 95;
+      const y = 25 + row * 35;
+      if (index > 0 && index % 16 === 0) {
+        doc.addPage();
+        doc.setFontSize(10);
+      }
+      doc.rect(x, y, 85, 28);
+      doc.text(`VOCHA #${index + 1} - ${v.profile}`, x + 4, y + 6);
+      doc.text(`Username: ${v.code}`, x + 4, y + 13);
+      doc.text(`Password: ${v.password}`, x + 4, y + 19);
+      doc.text(`${v.duration} | TSh ${Number(v.price).toLocaleString()}`, x + 4, y + 25);
+    });
+    doc.save(`vocha-${new Date().toISOString().slice(0, 10)}.pdf`);
+  }
+
+  async function handleDeleteVouchers(ids?: number[]) {
+    const clientId = selectedRouter || (routers[0] ? String(routers[0].id) : "");
+    if (!clientId || !window.confirm(ids ? "Unataka kufuta vocha hii?" : "Unataka kufuta vocha zote za router hii?")) return;
+    setDeleting(true);
+    setError("");
+    try {
+      const res = await authFetch("/api/vouchers", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId, ids }),
+      });
+      const data = await res.json();
+      if (!res.ok) setError(data.error || "Imeshindikana kufuta vocha");
+      else {
+        setGeneratedVouchers([]);
+        await loadData();
+      }
+    } catch {
+      setError("Kosa la mtandao. Jaribu tena.");
+    } finally {
+      setDeleting(false);
+    }
   }
 
   /** Kusawazisha matumizi halisi ya vocha kutoka kwenye router */
@@ -391,10 +457,8 @@ export default function VouchersPage() {
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                     {profiles.map((p) => (
-                      <button
+                      <div
                         key={p.id}
-                        type="button"
-                        onClick={() => setSelectedProfile(String(p.id))}
                         className={`p-4 rounded-2xl border-2 text-left transition-all ${
                           selectedProfile === String(p.id)
                             ? "border-emerald-500 bg-emerald-50/50 shadow-md shadow-emerald-500/10"
@@ -402,11 +466,15 @@ export default function VouchersPage() {
                         }`}
                       >
                         <div className="flex justify-between items-start mb-2">
+                          <button type="button" onClick={() => setSelectedProfile(String(p.id))} className="flex-1 text-left">
                           <span className="text-xl">⏱️</span>
                           <span className="font-mono text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">
                             {p.duration}
                           </span>
+                          </button>
+                          <button type="button" onClick={() => void handleDeletePackage(p.id)} className="text-rose-600 text-xs font-bold" title="Futa kifurushi">Futa</button>
                         </div>
+                        <button type="button" onClick={() => setSelectedProfile(String(p.id))} className="text-left w-full">
                         <div className="font-black text-sm text-slate-900">
                           {p.name}
                         </div>
@@ -418,7 +486,8 @@ export default function VouchersPage() {
                             Kasi: {p.speedLimit}
                           </div>
                         )}
-                      </button>
+                        </button>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -449,7 +518,7 @@ export default function VouchersPage() {
                     <input
                       type="number"
                       min="1"
-                      max="200"
+                      max="100"
                       value={count}
                       onChange={(e) => setCount(e.target.value)}
                       className="w-16 px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs text-center font-bold outline-none focus:border-emerald-500"
@@ -536,6 +605,13 @@ export default function VouchersPage() {
                     className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5"
                   >
                     🖨️ Chapisha
+                  </button>
+
+                  <button
+                    onClick={() => void handleDownloadPdf()}
+                    className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5"
+                  >
+                    📄 Pakua PDF
                   </button>
 
                   <a
@@ -661,6 +737,16 @@ export default function VouchersPage() {
 
       {activeTab === "list" && (
         <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+          {existingVouchers.length > 0 && (
+            <div className="flex items-center justify-between gap-3 px-6 py-4 border-b border-slate-100">
+              <p className="text-xs text-slate-500">
+                Vocha zilizohifadhiwa: <strong>{existingVouchers.length}/100</strong>
+              </p>
+              <button onClick={() => void handleDeleteVouchers()} disabled={deleting} className="px-3 py-2 rounded-xl bg-rose-50 text-rose-700 text-xs font-bold disabled:opacity-50">
+                {deleting ? "Inafuta..." : "Futa zote"}
+              </button>
+            </div>
+          )}
           {existingVouchers.length === 0 ? (
             <div className="p-12 text-center text-slate-400">
               <p className="text-4xl mb-3">🎫</p>
@@ -685,6 +771,7 @@ export default function VouchersPage() {
                     <th className="text-left px-6 py-3.5">Bei</th>
                     <th className="text-left px-6 py-3.5">Hali</th>
                     <th className="text-left px-6 py-3.5">Tarehe</th>
+                    <th className="text-left px-6 py-3.5">Kitendo</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -726,6 +813,9 @@ export default function VouchersPage() {
                       </td>
                       <td className="px-6 py-3 text-slate-500">
                         {new Date(v.createdAt).toLocaleDateString("sw-TZ")}
+                      </td>
+                      <td className="px-6 py-3">
+                        <button onClick={() => void handleDeleteVouchers([v.id])} disabled={deleting} className="text-rose-600 font-bold hover:text-rose-800 disabled:opacity-50">Futa</button>
                       </td>
                     </tr>
                   ))}
