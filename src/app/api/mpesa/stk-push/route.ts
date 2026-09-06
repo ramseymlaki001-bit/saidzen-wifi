@@ -24,12 +24,7 @@ export async function POST(request: NextRequest) {
 
     const { phoneNumber, amount, accountId } = await request.json();
 
-<<<<<<< HEAD
     if (!phoneNumber || !amount) {
-=======
-    const numericAmount = Number(amount);
-    if (!phoneNumber || !Number.isFinite(numericAmount) || numericAmount <= 0) {
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       return NextResponse.json(
         { error: "Namba ya simu na kiasi vinahitajika" },
         { status: 400 }
@@ -94,11 +89,7 @@ export async function POST(request: NextRequest) {
           Password: mpesaPassword,
           Timestamp: timestamp,
           TransactionType: "CustomerPayBillOnline",
-<<<<<<< HEAD
           Amount: Math.round(Number(amount)),
-=======
-          Amount: Math.round(numericAmount),
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
           PartyA: phoneNumber.replace("+", ""),
           PartyB: config.shortcode,
           PhoneNumber: phoneNumber.replace("+", ""),
@@ -113,16 +104,6 @@ export async function POST(request: NextRequest) {
 
     const stkData = await stkRes.json();
 
-<<<<<<< HEAD
-=======
-    if (!stkRes.ok || !stkData.CheckoutRequestID) {
-      return NextResponse.json(
-        { error: stkData.errorMessage || stkData.ResponseDescription || "M-Pesa imekataa ombi." },
-        { status: 502 }
-      );
-    }
-
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
     return NextResponse.json({
       success: true,
       message: "Ombi la M-Pesa limetumwa. Tafadhali angalia simu yako.",

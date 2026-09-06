@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-<<<<<<< HEAD
 import { authFetch } from "@/lib/client-auth";
-=======
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
 interface Config {
   publicKeySet: boolean;
@@ -18,13 +15,10 @@ interface Config {
   businessPhone: string;
   businessName: string;
   appUrl: string;
-<<<<<<< HEAD
   mikrotikSimulation?: boolean;
   database?: { host: string; port: number; database: string; ssl: boolean; provider: string };
   cronSecretSet?: boolean;
   encryptionKeyIsDefault?: boolean;
-=======
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 }
 
 const LABELS: Record<string, string> = {
@@ -72,11 +66,7 @@ export default function AdminSettingsPage() {
 
     setPwSaving(true);
     try {
-<<<<<<< HEAD
       const res = await authFetch("/api/auth/change-password", {
-=======
-      const res = await fetch("/api/auth/change-password", {
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -99,11 +89,7 @@ export default function AdminSettingsPage() {
 
   const load = useCallback(async () => {
     try {
-<<<<<<< HEAD
       const res = await authFetch("/api/settings");
-=======
-      const res = await fetch("/api/settings");
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       const data = await res.json();
       if (data.config) setConfig(data.config);
     } catch {
@@ -129,11 +115,7 @@ export default function AdminSettingsPage() {
     setSaving(true);
     setMsg("");
     try {
-<<<<<<< HEAD
       const res = await authFetch("/api/settings", {
-=======
-      const res = await fetch("/api/settings", {
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ updates }),
@@ -179,7 +161,6 @@ export default function AdminSettingsPage() {
         </p>
       </div>
 
-<<<<<<< HEAD
       {/* ══════ HALI YA MFUMO (ukaguzi wa uzalishaji) ══════ */}
       {config && (
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
@@ -235,8 +216,6 @@ export default function AdminSettingsPage() {
         </div>
       )}
 
-=======
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       {/* ══════ KUBADILISHA NENOSIRI ══════ */}
       <div className="bg-white rounded-2xl border-2 border-brand-200 p-6 shadow-sm">
         <div className="border-b pb-3 mb-4">

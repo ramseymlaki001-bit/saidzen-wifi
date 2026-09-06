@@ -1,14 +1,8 @@
 import { db } from "@/db";
 import { users, sessions, clients } from "@/db/schema";
-<<<<<<< HEAD
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { cookies, headers } from "next/headers";
-=======
-import { eq, or } from "drizzle-orm";
-import bcrypt from "bcryptjs";
-import { cookies } from "next/headers";
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 import crypto from "crypto";
 
 export async function hashPassword(password: string): Promise<string> {
@@ -28,7 +22,6 @@ export async function createSession(userId: number): Promise<string> {
 
   await db.insert(sessions).values({ userId, token, expiresAt });
 
-<<<<<<< HEAD
   try {
     const cookieStore = await cookies();
     // Standard cookie: httpOnly false allows JS fallback in iframe
@@ -43,21 +36,10 @@ export async function createSession(userId: number): Promise<string> {
   } catch {
     // If cookies() cannot be set in current context, token is still returned for localStorage/headers
   }
-=======
-  const cookieStore = await cookies();
-  cookieStore.set("session_token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    expires: expiresAt,
-  });
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
   return token;
 }
 
-<<<<<<< HEAD
 export async function getSession(explicitToken?: string) {
   let token = explicitToken?.trim();
 
@@ -89,11 +71,6 @@ export async function getSession(explicitToken?: string) {
     }
   }
 
-=======
-export async function getSession() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("session_token")?.value;
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
   if (!token) return null;
 
   const result = await db
@@ -121,17 +98,12 @@ export async function getSession() {
   if (result.length === 0) return null;
 
   const session = result[0];
-<<<<<<< HEAD
   const exp = new Date(session.expiresAt).getTime();
   if (!Number.isNaN(exp) && Date.now() > exp) {
-=======
-  if (new Date() > session.expiresAt) {
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
     await db.delete(sessions).where(eq(sessions.token, token));
     return null;
   }
 
-<<<<<<< HEAD
   return { ...session, token };
 }
 
@@ -150,17 +122,6 @@ export async function destroySession(explicitToken?: string) {
 
   if (token) {
     await db.delete(sessions).where(eq(sessions.token, token));
-=======
-  return session;
-}
-
-export async function destroySession() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("session_token")?.value;
-  if (token) {
-    await db.delete(sessions).where(eq(sessions.token, token));
-    cookieStore.delete("session_token");
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
   }
 }
 

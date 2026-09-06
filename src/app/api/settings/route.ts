@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { getWireguardConfig, setSetting, type SettingKey } from "@/lib/settings";
-<<<<<<< HEAD
 import { isSimulation } from "@/lib/mikrotik";
 import { getConnectionInfo } from "@/db";
-=======
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
 const ALLOWED_KEYS: SettingKey[] = [
   "WIREGUARD_SERVER_PUBLIC_KEY",
@@ -44,7 +41,6 @@ export async function GET() {
         businessPhone: cfg.businessPhone,
         businessName: cfg.businessName,
         appUrl,
-<<<<<<< HEAD
         // Hali ya mfumo — admin aone wazi kama ni majaribio au uzalishaji
         mikrotikSimulation: isSimulation(),
         database: getConnectionInfo(),
@@ -52,8 +48,6 @@ export async function GET() {
         encryptionKeyIsDefault:
           !process.env.ENCRYPTION_KEY ||
           process.env.ENCRYPTION_KEY === "saidzen-default-secret-key-2026",
-=======
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       },
     });
   } catch (err) {

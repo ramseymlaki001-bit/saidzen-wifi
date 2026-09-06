@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-<<<<<<< HEAD
 import { authFetch } from "@/lib/client-auth";
-=======
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
 interface Log {
   id: number;
@@ -46,11 +43,7 @@ export default function ActivityPage() {
   const load = useCallback(async () => {
     try {
       const qs = filter ? `?action=${filter}&limit=100` : "?limit=100";
-<<<<<<< HEAD
       const res = await authFetch(`/api/audit${qs}`);
-=======
-      const res = await fetch(`/api/audit${qs}`);
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       const data = await res.json();
       if (data.logs) setLogs(data.logs);
       if (data.byAction) setByAction(data.byAction);

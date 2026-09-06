@@ -2,16 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-<<<<<<< HEAD
 import { useRouter } from "next/navigation";
 import { authFetch } from "@/lib/client-auth";
 
 export default function VendorSettings() {
   const router = useRouter();
-=======
-
-export default function VendorSettings() {
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [changingPassword, setChangingPassword] = useState(false);
@@ -37,7 +32,6 @@ export default function VendorSettings() {
   const [routerMsg, setRouterMsg] = useState("");
 
   useEffect(() => {
-<<<<<<< HEAD
     authFetch("/api/auth/session")
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
@@ -45,32 +39,15 @@ export default function VendorSettings() {
           setSession(data);
         } else {
           router.push("/login");
-=======
-    fetch("/api/auth/session")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data) {
-          setSession(data);
-        } else {
-          window.location.href = "/login";
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         }
         setLoading(false);
       })
       .catch(() => {
-<<<<<<< HEAD
         router.push("/login");
       });
 
     // Pakia router zangu
     authFetch("/api/clients/mine")
-=======
-        window.location.href = "/login";
-      });
-
-    // Pakia router zangu
-    fetch("/api/clients/mine")
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       .then((r) => (r.ok ? r.json() : []))
       .then((d) => {
         const list = Array.isArray(d) ? d : [];
@@ -95,11 +72,7 @@ export default function VendorSettings() {
     setSavingRouter(id);
     setRouterMsg("");
     try {
-<<<<<<< HEAD
       const res = await authFetch(`/api/clients/${id}`, {
-=======
-      const res = await fetch(`/api/clients/${id}`, {
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -133,11 +106,7 @@ export default function VendorSettings() {
     setMsg("");
 
     try {
-<<<<<<< HEAD
       const res = await authFetch("/api/auth/change-password", {
-=======
-      const res = await fetch("/api/auth/change-password", {
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currentPassword, newPassword }),

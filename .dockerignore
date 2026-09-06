@@ -27,7 +27,6 @@ MWONGOZO_WA_DEPLOYMENT.md
 MWONGOZO_WA_TENCENT_CLOUD.md
 MWONGOZO_WA_COMMAND.md
 HATUA_ZA_BAADA_YA_DEPLOY.md
-<<<<<<< HEAD
 
 # Faili za majaribio/zana za muda (zinaweza kuwa na siri)
 set-*.js
@@ -35,5 +34,3 @@ list-*.js
 verify-*.js
 login-*.js
 .env.production
-=======
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a

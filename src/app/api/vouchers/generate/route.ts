@@ -74,7 +74,6 @@ export async function POST(request: NextRequest) {
       port: client.routerPort,
     };
 
-<<<<<<< HEAD
     let generated;
     try {
       generated = await generateVouchers(conn, profile.mikrotikProfile, count);
@@ -102,13 +101,6 @@ export async function POST(request: NextRequest) {
         { status: 503 }
       );
     }
-=======
-    const generated = await generateVouchers(
-      conn,
-      profile.mikrotikProfile,
-      count
-    );
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
     // Save to database
     const voucherRecords = generated.map((v) => ({

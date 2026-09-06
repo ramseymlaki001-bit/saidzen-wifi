@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-<<<<<<< HEAD
 import { authFetch } from "@/lib/client-auth";
-=======
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
 interface Client {
   id: number;
@@ -40,7 +37,6 @@ export default function PaymentsPage() {
   });
 
   const loadData = useCallback(async () => {
-<<<<<<< HEAD
     try {
       const [cRes, pRes] = await Promise.all([
         authFetch("/api/clients"),
@@ -56,17 +52,6 @@ export default function PaymentsPage() {
     } finally {
       setLoading(false);
     }
-=======
-    const [cRes, pRes] = await Promise.all([
-      fetch("/api/clients"),
-      fetch("/api/payments"),
-    ]);
-    const clientsData = await cRes.json();
-    const paymentsData = await pRes.json();
-    setClients(Array.isArray(clientsData) ? clientsData : []);
-    setPayments(Array.isArray(paymentsData) ? paymentsData : []);
-    setLoading(false);
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
   }, []);
 
   useEffect(() => {
@@ -76,11 +61,7 @@ export default function PaymentsPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-<<<<<<< HEAD
     const res = await authFetch("/api/payments", {
-=======
-    const res = await fetch("/api/payments", {
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

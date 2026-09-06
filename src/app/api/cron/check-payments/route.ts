@@ -55,7 +55,6 @@ export async function GET(request: NextRequest) {
       });
     }
 
-<<<<<<< HEAD
     // ── Usafi: futa vikao na token zilizoisha muda (kuzuia jedwali kujaa) ──
     const { sessions, passwordResetTokens, connectionTokens } = await import("@/db/schema");
     const { lt: ltOp } = await import("drizzle-orm");
@@ -83,17 +82,12 @@ export async function GET(request: NextRequest) {
       console.error("Cleanup error:", e);
     }
 
-=======
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
     return NextResponse.json({
       success: true,
       job: "check-payments",
       checked: expiredClients.length,
       disabled,
-<<<<<<< HEAD
       cleanup: { expiredSessions: cleanedSessions, expiredResetTokens: cleanedTokens },
-=======
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       timestamp: now.toISOString(),
     });
   } catch (err) {

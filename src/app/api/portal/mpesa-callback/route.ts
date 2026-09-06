@@ -68,17 +68,6 @@ export async function POST(request: NextRequest) {
     const receipt = get("MpesaReceiptNumber");
     const amount = get("Amount");
 
-<<<<<<< HEAD
-=======
-    if (!receipt || Number(amount) !== Number(order.amount)) {
-      await db
-        .update(portalOrders)
-        .set({ status: "failed" })
-        .where(eq(portalOrders.id, order.id));
-      return NextResponse.json({ ResultCode: 0, ResultDesc: "Invalid payment" });
-    }
-
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
     // ── 5. Pata router + kifurushi ────────────────────────────
     const [client] = await db
       .select()

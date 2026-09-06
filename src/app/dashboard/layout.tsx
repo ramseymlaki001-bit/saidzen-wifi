@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-<<<<<<< HEAD
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import {
@@ -11,10 +10,6 @@ import {
   getClientToken,
   stripAuthFromUrl,
 } from "@/lib/client-auth";
-=======
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
 interface Session {
   userId: number;
@@ -25,7 +20,6 @@ interface Session {
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-<<<<<<< HEAD
   const [session, setSession] = useState<Session | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [authError, setAuthError] = useState("");
@@ -82,39 +76,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       /* ignore */
     }
     window.location.href = "/login";
-=======
-  const router = useRouter();
-  const [session, setSession] = useState<Session | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/auth/session")
-      .then((r) => {
-        if (!r.ok) throw new Error();
-        return r.json();
-      })
-      .then((data) => {
-        if (data.role !== "admin") {
-          router.push("/vendor");
-          return;
-        }
-        setSession(data);
-      })
-      .catch(() => router.push("/login"));
-  }, [router]);
-
-  async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
-  }
-
-  if (!session) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
   }
 
   const navItems = [
@@ -126,7 +87,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: "/dashboard/settings", label: "Mipangilio", icon: "⚙️" },
   ];
 
-<<<<<<< HEAD
   if (session === null && !authError) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-3">
@@ -158,11 +118,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-=======
-  return (
-    <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar overlay on mobile */}
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-30 lg:hidden"
@@ -170,10 +125,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         />
       )}
 
-<<<<<<< HEAD
-=======
-      {/* Sidebar */}
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       <aside
         className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-brand-950 text-white transform transition-transform lg:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -185,13 +136,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               S
             </div>
             <div>
-<<<<<<< HEAD
               <div className="font-bold text-sm tracking-tight">SaidZen WiFi</div>
-=======
-              <div className="font-bold text-sm tracking-tight">
-                SaidZen WiFi
-              </div>
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
               <div className="text-[10px] text-brand-300 uppercase tracking-wider">
                 Admin Panel
               </div>
@@ -209,11 +154,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                   isActive
-<<<<<<< HEAD
                     ? "bg-brand-500/20 text-brand-300 font-bold"
-=======
-                    ? "bg-brand-500/20 text-brand-300"
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
                     : "text-slate-300 hover:bg-white/5 hover:text-white"
                 }`}
               >
@@ -222,7 +163,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               </Link>
             );
           })}
-<<<<<<< HEAD
 
           <div className="pt-2 mt-2 border-t border-white/10 space-y-1">
             <Link
@@ -261,56 +201,31 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 bg-brand-950">
-=======
-        </nav>
-
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
           <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 bg-brand-500/30 rounded-full flex items-center justify-center text-sm font-bold text-brand-300">
               {session.name.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
-<<<<<<< HEAD
               <div className="text-sm font-medium truncate">{session.name}</div>
               <div className="text-xs text-slate-400 truncate">Super Admin</div>
-=======
-              <div className="text-sm font-medium truncate">
-                {session.name}
-              </div>
-              <div className="text-xs text-slate-400 truncate">
-                {session.email}
-              </div>
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
             </div>
           </div>
           <Link
             href="/dashboard/settings"
             onClick={() => setSidebarOpen(false)}
-<<<<<<< HEAD
             className="block px-4 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-=======
-            className="block px-4 py-2 text-sm text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
           >
             🔑 Badilisha Nenosiri
           </Link>
           <button
             onClick={handleLogout}
-<<<<<<< HEAD
             className="w-full text-left px-4 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2"
           >
             <span>🚪</span> Toka
-=======
-            className="w-full text-left px-4 py-2 text-sm text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-          >
-            🚪 Toka
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
           </button>
         </div>
       </aside>
 
-<<<<<<< HEAD
       <div className="flex-1 min-w-0 flex flex-col">
         <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
           <div className="flex items-center gap-4">
@@ -349,36 +264,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </header>
 
         <main className="p-6 flex-1 animate-fadeIn">{children}</main>
-=======
-      {/* Main content */}
-      <div className="flex-1 min-w-0">
-        {/* Top bar */}
-        <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center gap-4 sticky top-0 z-20">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 hover:bg-slate-100 rounded-lg"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
-          <h1 className="text-lg font-semibold text-slate-800">
-            {navItems.find((i) => i.href === pathname)?.label || "Dashboard"}
-          </h1>
-        </header>
-
-        <main className="p-6 animate-fadeIn">{children}</main>
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       </div>
     </div>
   );

@@ -2,10 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-<<<<<<< HEAD
 import { authFetch } from "@/lib/client-auth";
-=======
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
 interface UnpaidClient {
   id: number;
@@ -60,7 +57,6 @@ export default function AdminDashboard() {
 
   const loadStats = useCallback(async () => {
     try {
-<<<<<<< HEAD
       const res = await authFetch("/api/admin/stats");
       if (!res.ok) throw new Error("Stats request failed");
       const data = await res.json();
@@ -96,32 +92,26 @@ export default function AdminDashboard() {
         recentPayments: [],
         topClients: [],
       });
-=======
-      const res = await fetch("/api/admin/stats");
-      const data = await res.json();
-      setStats(data);
-    } catch (e) {
-      console.error(e);
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
     }
     setLoading(false);
   }, []);
 
   useEffect(() => {
-    loadStats();
+    const initialLoad = window.setTimeout(() => {
+      void loadStats();
+    }, 0);
     // Live: kurasa zote zinasasishwa kila sekunde 30 ili ziwe zinasawazika
     const interval = setInterval(loadStats, 30000);
-    return () => clearInterval(interval);
+    return () => {
+      window.clearTimeout(initialLoad);
+      clearInterval(interval);
+    };
   }, [loadStats]);
 
   async function runPaymentCheck() {
     setChecking(true);
     try {
-<<<<<<< HEAD
       const res = await authFetch("/api/cron/check-payments");
-=======
-      const res = await fetch("/api/cron/check-payments");
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       const data = await res.json();
       alert(
         `Imekaguliwa: wateja ${data.checked || 0} wameangaliwa.\nWaliozimwa: ${(data.disabled || []).length}`
@@ -139,11 +129,7 @@ export default function AdminDashboard() {
     setDiagnosticResult(null);
 
     try {
-<<<<<<< HEAD
       const res = await authFetch(`/api/clients/${clientId}/diagnostics`, {
-=======
-      const res = await fetch(`/api/clients/${clientId}/diagnostics`, {
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         method: "POST",
       });
       const data = await res.json();
@@ -154,11 +140,7 @@ export default function AdminDashboard() {
     setDiagLoading(false);
   }
 
-<<<<<<< HEAD
   if (loading) {
-=======
-  if (loading || !stats) {
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
     return (
       <div className="flex items-center justify-center py-20">
         <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
@@ -166,7 +148,6 @@ export default function AdminDashboard() {
     );
   }
 
-<<<<<<< HEAD
   if (!stats) {
     return (
       <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center space-y-3">
@@ -186,8 +167,6 @@ export default function AdminDashboard() {
     );
   }
 
-=======
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
   const revenuePercent =
     Number(stats.expectedRevenue) > 0
       ? Math.round(
@@ -198,11 +177,7 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       {/* Support Banner */}
-<<<<<<< HEAD
-      <div className="bg-gradient-to-r from-brand-600 to-brand-800 rounded-2xl p-5 text-white flex flex-col md:flex-row items-center justify-between gap-4">
-=======
       <div className="bg-linear-to-r from-brand-600 to-brand-800 rounded-2xl p-5 text-white flex flex-col md:flex-row items-center justify-between gap-4">
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         <div>
           <h2 className="text-lg font-bold">
             📞 Ofisi Kuu ya Mtandaoni — SaidZen WiFi

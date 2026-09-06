@@ -1,20 +1,14 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-<<<<<<< HEAD
 import Link from "next/link";
 import { authFetch } from "@/lib/client-auth";
-=======
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
 interface Client {
   id: number;
   userId: number;
   dashboardUsername: string | null;
-<<<<<<< HEAD
   portalSlug?: string | null;
-=======
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
   businessName: string;
   location: string | null;
   routerIp: string;
@@ -63,7 +57,6 @@ export default function ClientsPage() {
   });
 
   const loadClients = useCallback(async () => {
-<<<<<<< HEAD
     try {
       const res = await authFetch("/api/clients");
       const data = await res.json();
@@ -73,12 +66,6 @@ export default function ClientsPage() {
     } finally {
       setLoading(false);
     }
-=======
-    const res = await fetch("/api/clients");
-    const data = await res.json();
-    setClients(Array.isArray(data) ? data : []);
-    setLoading(false);
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
   }, []);
 
   useEffect(() => {
@@ -88,11 +75,7 @@ export default function ClientsPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-<<<<<<< HEAD
     const res = await authFetch("/api/clients", {
-=======
-    const res = await fetch("/api/clients", {
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -128,11 +111,7 @@ export default function ClientsPage() {
 
   async function toggleClient(id: number, currentStatus: string) {
     const action = currentStatus === "active" ? "suspend" : "activate";
-<<<<<<< HEAD
     const res = await authFetch(`/api/clients/${id}/toggle`, {
-=======
-    const res = await fetch(`/api/clients/${id}/toggle`, {
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action }),
@@ -189,11 +168,7 @@ export default function ClientsPage() {
     }
 
     try {
-<<<<<<< HEAD
       const res = await authFetch(`/api/clients/${editing}`, {
-=======
-      const res = await fetch(`/api/clients/${editing}`, {
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -223,11 +198,7 @@ export default function ClientsPage() {
     setViewVouchers(clientId);
     setLoadingVouchers(true);
     try {
-<<<<<<< HEAD
       const res = await authFetch(`/api/vouchers?clientId=${clientId}`);
-=======
-      const res = await fetch(`/api/vouchers?clientId=${clientId}`);
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       const data = await res.json();
       setClientVouchers(Array.isArray(data) ? data.slice(0, 30) : []);
     } catch {
@@ -577,7 +548,6 @@ export default function ClientsPage() {
                         >
                           🎫 Vocha
                         </button>
-<<<<<<< HEAD
 
                         <Link
                           href={`/wifi/${c.portalSlug || c.dashboardUsername || c.id}`}
@@ -589,8 +559,6 @@ export default function ClientsPage() {
                           <span>🌐 Portal</span>
                           <span className="text-[10px]">↗</span>
                         </Link>
-=======
->>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
                       </div>
                     </td>
                   </tr>
