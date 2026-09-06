@@ -261,10 +261,10 @@ export default function WifiPortalPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
-      <div className="max-w-md mx-auto min-h-screen flex flex-col">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.14),transparent_34%),linear-gradient(145deg,#07111f_0%,#0f172a_48%,#07111f_100%)] text-slate-100">
+      <div className="max-w-5xl mx-auto min-h-screen flex flex-col">
         {/* ── Top Navigation Bar ── */}
-        <div className="flex items-center justify-between text-xs py-2.5 px-5 border-b border-slate-800/80 bg-slate-950/60 sticky top-0 z-20 backdrop-blur">
+        <div className="flex items-center justify-between text-xs py-3 px-5 sm:px-8 border-b border-white/10 bg-slate-950/50 sticky top-0 z-20 backdrop-blur-xl">
           <Link
             href="/"
             className="text-slate-400 hover:text-white font-medium flex items-center gap-1 transition-colors"
@@ -280,19 +280,26 @@ export default function WifiPortalPage() {
         </div>
 
         {/* ── Header ── */}
-        <header className="pt-6 pb-6 px-5 text-center">
-          <div className="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-tr from-brand-500 to-emerald-400 flex items-center justify-center text-3xl shadow-xl shadow-emerald-500/20 mb-4">
-            📶
+        <header className="px-5 sm:px-8 pt-10 pb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 shrink-0 rounded-[22px] bg-linear-to-tr from-brand-500 to-emerald-400 flex items-center justify-center text-3xl shadow-xl shadow-emerald-500/20 ring-4 ring-white/5">
+              📶
+            </div>
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.2em] text-emerald-400 font-bold mb-1">
+                Customer WiFi Portal
+              </p>
+              <h1 className="text-3xl sm:text-4xl font-black leading-tight tracking-tight">
+                {hotspot?.name || "SaidZen WiFi"}
+              </h1>
+              {hotspot?.location && (
+                <p className="text-sm text-slate-400 mt-1">📍 {hotspot.location}</p>
+              )}
+            </div>
           </div>
-          <h1 className="text-2xl font-black leading-tight">
-            {hotspot?.name || "SaidZen WiFi"}
-          </h1>
-          {hotspot?.location && (
-            <p className="text-xs text-slate-400 mt-1">📍 {hotspot.location}</p>
-          )}
-          <div className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Umeunganishwa kwenye WiFi
+          <div className="inline-flex self-start md:self-auto items-center gap-2 px-3.5 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            WiFi iko tayari
           </div>
         </header>
 
@@ -305,7 +312,7 @@ export default function WifiPortalPage() {
 
         {/* ── Tabs ── */}
         <div className="px-5">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-1 flex gap-1">
+          <div className="bg-slate-900/80 border border-white/10 rounded-2xl p-1.5 flex gap-1 shadow-xl shadow-black/10">
             <button
               onClick={() => {
                 setTab("use");
@@ -335,31 +342,37 @@ export default function WifiPortalPage() {
           </div>
         </div>
 
-        <main className="flex-1 px-5 py-6 space-y-5">
+        <main className="flex-1 px-5 sm:px-8 py-6 space-y-5">
           {/* ══════ TAB 1: KUINGIZA VOCHA ══════ */}
           {tab === "use" && (
             <>
               <form
                 onSubmit={handleActivate}
-                className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4"
+                className="bg-white/6 border border-white/10 rounded-[26px] p-6 sm:p-8 space-y-5 shadow-2xl shadow-black/10 backdrop-blur-sm"
               >
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-2">
-                    Andika Code ya Vocha Yako
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-emerald-400 font-black mb-2">
+                    Tumia vocha uliyonunua
+                  </p>
+                  <label className="block text-xl font-black text-white mb-2">
+                    Weka code ya vocha
                   </label>
+                  <p className="text-xs text-slate-400 mb-4">
+                    Ingiza code yako hapa ili uanze kutumia intaneti mara moja.
+                  </p>
                   <input
                     value={code}
                     onChange={(e) => setCode(e.target.value.toUpperCase())}
                     placeholder="MFANO: SZ-78B9X"
                     autoComplete="off"
-                    className="w-full px-4 py-4 bg-slate-950 border-2 border-slate-700 rounded-2xl text-center text-xl font-mono font-black tracking-widest text-white outline-none focus:border-emerald-500 transition-colors"
+                    className="w-full px-4 py-4 bg-slate-950/80 border-2 border-slate-700/80 rounded-2xl text-center text-xl font-mono font-black tracking-widest text-white outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-colors"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={checking || !code.trim()}
-                  className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-2xl font-black text-sm disabled:opacity-40 flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20"
+                  className="w-full py-4 bg-emerald-400 hover:bg-emerald-300 text-slate-950 rounded-2xl font-black text-sm disabled:opacity-40 flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20"
                 >
                   {checking ? (
                     <>
@@ -511,7 +524,7 @@ export default function WifiPortalPage() {
                 </div>
               ) : purchase?.success && purchase.voucher ? (
                 /* ── VOCHA IMETOKA ── */
-                <div className="bg-gradient-to-br from-emerald-500/15 to-brand-500/10 border-2 border-emerald-500/40 rounded-3xl p-6 space-y-4 animate-fadeIn">
+                <div className="bg-linear-to-br from-emerald-500/15 to-brand-500/10 border-2 border-emerald-500/40 rounded-3xl p-6 space-y-4 animate-fadeIn">
                   <div className="text-center">
                     <span className="text-5xl">🎉</span>
                     <h2 className="text-lg font-black text-white mt-2">
@@ -617,7 +630,7 @@ export default function WifiPortalPage() {
                 <>
                   <form
                     onSubmit={handlePurchase}
-                    className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-5"
+                    className="bg-white/6 border border-white/10 rounded-[26px] p-6 sm:p-8 space-y-6 shadow-2xl shadow-black/10 backdrop-blur-sm"
                   >
                     {purchase?.error && (
                       <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 px-4 py-3 rounded-2xl text-xs">
@@ -626,26 +639,29 @@ export default function WifiPortalPage() {
                     )}
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-2.5">
-                        1. Chagua Kifurushi
+                      <label className="block text-xl font-black text-white mb-1">
+                        Chagua kifurushi
                       </label>
+                      <p className="text-xs text-slate-400 mb-4">
+                        Chagua muda unaokufaa, kisha lipia kwa M-Pesa.
+                      </p>
                       <div className="space-y-2">
                         {packages.map((p) => (
                           <button
                             key={p.id}
                             type="button"
                             onClick={() => setSelectedPkg(p.id)}
-                            className={`w-full flex items-center justify-between p-3.5 rounded-2xl border-2 transition-all ${
+                            className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${
                               selectedPkg === p.id
-                                ? "border-emerald-500 bg-emerald-500/10"
-                                : "border-slate-700 hover:border-slate-600 bg-slate-950/40"
+                                ? "border-emerald-400 bg-emerald-400/10 shadow-lg shadow-emerald-500/10"
+                                : "border-slate-700/80 hover:border-slate-500 bg-slate-950/40"
                             }`}
                           >
                             <div className="flex items-center gap-3 text-left">
                               <div
                                 className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm ${
                                   selectedPkg === p.id
-                                    ? "bg-emerald-500 text-slate-950"
+                                    ? "bg-emerald-400 text-slate-950"
                                     : "bg-slate-800 text-slate-400"
                                 }`}
                               >
@@ -662,9 +678,14 @@ export default function WifiPortalPage() {
                               </div>
                             </div>
                             <div className="text-right">
-                              <div className="font-black text-emerald-400">
+                              <div className="font-black text-emerald-300">
                                 TSh {p.price.toLocaleString()}
                               </div>
+                              {selectedPkg === p.id && (
+                                <div className="text-[10px] text-emerald-400 font-bold mt-0.5">
+                                  Imechaguliwa
+                                </div>
+                              )}
                             </div>
                           </button>
                         ))}
@@ -672,25 +693,25 @@ export default function WifiPortalPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-2">
-                        2. Namba Yako ya Simu (M-Pesa)
+                      <label className="block text-xl font-black text-white mb-1">
+                        Namba ya simu ya M-Pesa
                       </label>
+                      <p className="text-xs text-slate-400 mb-3">
+                        Tutatuma ombi la malipo moja kwa moja kwenye simu yako.
+                      </p>
                       <input
                         type="tel"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="0755 123 456"
-                        className="w-full px-4 py-3.5 bg-slate-950 border-2 border-slate-700 rounded-2xl text-base font-mono text-white outline-none focus:border-emerald-500 transition-colors"
+                        className="w-full px-4 py-3.5 bg-slate-950/80 border-2 border-slate-700/80 rounded-2xl text-base font-mono text-white outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-colors"
                       />
-                      <p className="text-[10px] text-slate-500 mt-1.5">
-                        Tutakutumia ombi la malipo (Pop-up) kwenye simu yako.
-                      </p>
                     </div>
 
                     <button
                       type="submit"
                       disabled={buying || !selectedPkg || !phone.trim()}
-                      className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-2xl font-black text-sm disabled:opacity-40 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+                      className="w-full py-4 bg-emerald-400 hover:bg-emerald-300 text-slate-950 rounded-2xl font-black text-sm disabled:opacity-40 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
                     >
                       {buying ? (
                         <>

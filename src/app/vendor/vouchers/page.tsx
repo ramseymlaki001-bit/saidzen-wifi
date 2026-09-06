@@ -59,6 +59,15 @@ export default function VouchersPage() {
   const [copySuccess, setCopySuccess] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<string>("");
+  const [showPackageForm, setShowPackageForm] = useState(false);
+  const [packageForm, setPackageForm] = useState({
+    name: "",
+    duration: "",
+    price: "",
+    speedLimit: "",
+    mikrotikProfile: "",
+  });
+  const [savingPackage, setSavingPackage] = useState(false);
   // Multi-router support
   const [routers, setRouters] = useState<Router[]>([]);
   const [selectedRouter, setSelectedRouter] = useState("");
@@ -133,6 +142,36 @@ export default function VouchersPage() {
     }
 
     setGenerating(false);
+  }
+
+  async function handleCreatePackage(e: React.FormEvent) {
+    e.preventDefault();
+    const clientId = selectedRouter || (routers[0] ? String(routers[0].id) : "");
+    setSavingPackage(true);
+    setError("");
+
+    try {
+      const res = await authFetch("/api/vouchers/profiles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...packageForm, clientId }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Imeshindikana kuongeza kifurushi");
+        return;
+      }
+
+      setPackageForm({ name: "", duration: "", price: "", speedLimit: "", mikrotikProfile: "" });
+      setShowPackageForm(false);
+      await loadData();
+      setSelectedProfile(String(data.id));
+    } catch {
+      setError("Kosa la mtandao. Jaribu tena.");
+    } finally {
+      setSavingPackage(false);
+    }
   }
 
   function handlePrint() {
@@ -307,6 +346,37 @@ export default function VouchersPage() {
                 </span>
               </div>
             )}
+
+            <div className="border border-emerald-200 bg-emerald-50/60 rounded-2xl p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="font-bold text-sm text-slate-900">Panga kifurushi chako</h3>
+                  <p className="text-xs text-slate-600 mt-1">
+                    Tengeneza jina, muda, kasi na bei; kitaonekana pia kwenye portal ya mteja.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPackageForm((visible) => !visible)}
+                  className="shrink-0 px-3 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold"
+                >
+                  {showPackageForm ? "Funga" : "+ Kifurushi"}
+                </button>
+              </div>
+
+              {showPackageForm && (
+                <form onSubmit={handleCreatePackage} className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4 pt-4 border-t border-emerald-200">
+                  <input required maxLength={100} placeholder="Jina, mfano: Wiki ya kawaida" value={packageForm.name} onChange={(e) => setPackageForm({ ...packageForm, name: e.target.value })} className="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:border-emerald-500" />
+                  <input required maxLength={50} placeholder="Muda, mfano: 24 Hours" value={packageForm.duration} onChange={(e) => setPackageForm({ ...packageForm, duration: e.target.value })} className="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:border-emerald-500" />
+                  <input required type="number" min="1" step="1" placeholder="Bei ya TSh" value={packageForm.price} onChange={(e) => setPackageForm({ ...packageForm, price: e.target.value })} className="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:border-emerald-500" />
+                  <input maxLength={50} placeholder="Kasi, mfano: 5M/5M (hiari)" value={packageForm.speedLimit} onChange={(e) => setPackageForm({ ...packageForm, speedLimit: e.target.value })} className="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:border-emerald-500" />
+                  <input maxLength={100} placeholder="MikroTik profile (hiari)" value={packageForm.mikrotikProfile} onChange={(e) => setPackageForm({ ...packageForm, mikrotikProfile: e.target.value })} className="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:border-emerald-500 sm:col-span-2" />
+                  <button type="submit" disabled={savingPackage || (!selectedRouter && routers.length === 0)} className="sm:col-span-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-bold disabled:opacity-50">
+                    {savingPackage ? "Inahifadhi..." : "Hifadhi Kifurushi"}
+                  </button>
+                </form>
+              )}
+            </div>
 
             <form onSubmit={handleGenerate} className="space-y-6">
               {/* Profile Selection */}
