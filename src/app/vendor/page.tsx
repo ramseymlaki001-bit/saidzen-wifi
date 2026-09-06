@@ -36,6 +36,7 @@ interface VendorStats {
 
 export default function VendorDashboard() {
   const [stats, setStats] = useState<VendorStats | null>(null);
+  const [currentTime] = useState(() => Date.now());
   const [pingStatus, setPingStatus] = useState<string | null>(null);
   const [isPinging, setIsPinging] = useState(false);
 
@@ -143,7 +144,7 @@ export default function VendorDashboard() {
     ? Math.max(
         0,
         Math.ceil(
-          (new Date(stats.subscriptionEnd).getTime() - Date.now()) /
+          (new Date(stats.subscriptionEnd).getTime() - currentTime) /
             (1000 * 60 * 60 * 24)
         )
       )

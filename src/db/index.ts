@@ -1,28 +1,25 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
 
 /**
- * Muunganisho wa Database (PostgreSQL)
+ * Muunganisho wa Database (MySQL)
  *
- * Mfumo unaunganishwa na PostgreSQL kupitia pg.Pool na Drizzle ORM.
+ * Mfumo unaunganishwa na MySQL kupitia mysql2 na Drizzle ORM.
  */
 const databaseUrl =
   process.env.DATABASE_URL ||
-  "postgresql://postgres:postgres@127.0.0.1:5432/app_db";
+  "mysql://saidzen:saidzen_secure_db_pass_2026@127.0.0.1:3306/saidzen_db";
 
 const globalForDb = globalThis as typeof globalThis & {
-  __arenaNextJsPostgresqlPool?: Pool;
+  __saidzenMysqlPool?: mysql.Pool;
 };
 
 export const pool =
-  globalForDb.__arenaNextJsPostgresqlPool ??
-  new Pool({
-    connectionString: databaseUrl,
-    connectionTimeoutMillis: 5000,
-  });
+  globalForDb.__saidzenMysqlPool ??
+  mysql.createPool(databaseUrl);
 
 if (process.env.NODE_ENV !== "production") {
-  globalForDb.__arenaNextJsPostgresqlPool = pool;
+  globalForDb.__saidzenMysqlPool = pool;
 }
 
 export const db = drizzle(pool);
@@ -30,9 +27,9 @@ export const db = drizzle(pool);
 export function getConnectionInfo() {
   return {
     host: "127.0.0.1",
-    port: 5432,
-    database: "app_db",
+    port: 3306,
+    database: "saidzen_db",
     ssl: false,
-    provider: "PostgreSQL (Local / Cloud)",
+    provider: "MySQL (Local / Cloud)",
   };
 }

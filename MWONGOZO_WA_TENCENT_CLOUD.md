@@ -83,7 +83,7 @@ Lighthouse inapatikana katika maeneo 9. Kwa mfumo wako:
 
 **Vipimo vya kuchagua kwa SaidZen:**
 - ✅ **Chini kabisa:** Starter 2 vCPU / 2 GB RAM ($4.20/mwezi)
-- ⭐ **Inapendekezwa:** Starter 2 vCPU / 4 GB RAM ($6.00/mwezi) — nafasi zaidi kwa Next.js + PostgreSQL
+- ⭐ **Inapendekezwa:** Starter 2 vCPU / 4 GB RAM ($6.00/mwezi) — nafasi zaidi kwa Next.js + MySQL
 
 ---
 
@@ -152,8 +152,8 @@ sysctl -p
 curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
 apt install -y nodejs
 
-# 5. Sakinisha PostgreSQL
-apt install -y postgresql postgresql-contrib
+# 5. Sakinisha MySQL
+apt install -y mysql-server
 
 # 6. Sakinisha Nginx (reverse proxy, hiari lakini inapendekezwa)
 apt install -y nginx
@@ -186,7 +186,7 @@ ufw enable
 ## 🌐 Hatua ya 7: Sakinisha Tovuti ya SaidZen
 
 1. Pakia msimbo wako wa SaidZen kwenye seva (kwa `git clone` au `scp`).
-2. Weka `.env` na `DATABASE_URL` sahihi ya PostgreSQL.
+2. Weka `.env` na `DATABASE_URL` sahihi ya MySQL.
 3. Sakinisha utegemezi: `npm install`
 4. jenga: `npm run build`
 5. Anzisha kwa PM2 (ili iendelee kufanya kazi):

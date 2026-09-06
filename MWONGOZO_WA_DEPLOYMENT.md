@@ -41,7 +41,7 @@ chmod +x deploy.sh
 
 Hati ita:
 1. Kusasisha mfumo
-2. Kusakinisha **Node.js** na **PostgreSQL**
+2. Kusakinisha **Node.js** na **MySQL**
 3. Kukuuliza jina la database, mtumiaji, na nenosiri
 4. Kutengeneza database
 5. Kusakinisha utegemezi (`npm install`)
@@ -88,13 +88,13 @@ Ikiwa unapendelea kufanya hatua kwa mkono:
 ```bash
 apt update && apt upgrade -y
 curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-apt install -y nodejs postgresql postgresql-contrib nginx
+apt install -y nodejs mysql-server nginx
 ```
 
 ### 2. Anzisha na tengeneza database
 ```bash
-systemctl enable postgresql
-systemctl start postgresql
+systemctl enable mysql
+systemctl start mysql
 su - postgres -c "psql -c \"ALTER USER postgres WITH PASSWORD 'NENOSIRI_IMARA';\""
 su - postgres -c "psql -c \"CREATE DATABASE saidzen_db;\""
 ```
@@ -107,7 +107,7 @@ nano .env
 ```
 Weka:
 ```
-DATABASE_URL=postgresql://postgres:NENOSIRI_IMARA@127.0.0.1:5432/saidzen_db
+DATABASE_URL=mysql://saidzen:NENOSIRI_IMARA@127.0.0.1:3306/saidzen_db
 ENCRYPTION_KEY=funguo-yako-ya-siri
 NEXT_PUBLIC_APP_URL=http://IP_YA_SEVA:3000
 ```
@@ -142,7 +142,7 @@ Hii inatengeneza majedwali yote na akaunti za kwanza kiotomatiki. ✅
 | Tatizo | Sababu na Suluhisho |
 |--------|---------------------|
 | **Tovuti haifunguliwi (timeout)** | Bandari 3000 haijafunguliwa kwenye **Security Group** ya Tencent. Fungua TCP 3000. |
-| **Hitilafu ya database / "ECONNREFUSED"** | `DATABASE_URL` si sahihi, au PostgreSQL haijaanzwa. Angalia: `systemctl status postgresql` na `.env`. |
+| **Hitilafu ya database / "ECONNREFUSED"** | `DATABASE_URL` si sahihi, au MySQL haijaanzwa. Angalia: `systemctl status mysql` na `.env`. |
 | **"DATABASE_URL is required"** | Faili la `.env` halipo au halijasomwa. Hakikisha `.env` upo kwenye mzizi wa mradi (`/root/saidzen/.env`). |
 | **Build inashindwa** | Endesha `npm install` kwanza, kisha `npm run build`. Angalia toleo la Node (inahitaji Node 18+). |
 | **Programu inakufa baada ya kufunga SSH** | Hutumii PM2. Endesha: `pm2 start ecosystem.config.js && pm2 save`. |

@@ -81,20 +81,26 @@ export default function WifiPortalPage() {
   // Pakia vifurushi
   useEffect(() => {
     if (!slug) return;
-    setLoading(true);
-    fetch(`/api/portal/packages/${slug}`)
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.hotspot) {
-          setHotspot(d.hotspot);
-          setPackages(d.packages || []);
-          if (d.packages?.length) setSelectedPkg(d.packages[0].id);
+    const loadPackages = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/portal/packages/${slug}`);
+        const data = await response.json();
+        if (data.hotspot) {
+          setHotspot(data.hotspot);
+          setPackages(data.packages || []);
+          if (data.packages?.length) setSelectedPkg(data.packages[0].id);
         } else {
           setNotFound(true);
         }
-      })
-      .catch(() => setNotFound(true));
-    setLoading(false);
+      } catch {
+        setNotFound(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+    const initialLoad = window.setTimeout(() => void loadPackages(), 0);
+    return () => window.clearTimeout(initialLoad);
   }, [slug]);
 
   // ── Kuingiza vocha ──

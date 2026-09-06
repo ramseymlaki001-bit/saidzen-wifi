@@ -99,7 +99,8 @@ export default function AdminSettingsPage() {
   }, []);
 
   useEffect(() => {
-    load();
+    const initialLoad = window.setTimeout(() => void load(), 0);
+    return () => window.clearTimeout(initialLoad);
   }, [load]);
 
   async function handleSave() {

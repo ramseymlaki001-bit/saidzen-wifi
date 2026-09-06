@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { clients, users } from "@/db/schema";
-import { eq, and, or, lt, gt, gte } from "drizzle-orm";
+import { eq, and, or, lt, gte } from "drizzle-orm";
 import { getSession } from "@/lib/auth";
 
 /**
@@ -24,7 +24,7 @@ export async function GET() {
 
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
     // Client counts
     const { sql } = await import("drizzle-orm");
@@ -55,8 +55,8 @@ export async function GET() {
       .from(payments)
       .where(
         and(
-          gt(payments.paidAt, monthStart),
-          lt(payments.paidAt, monthEnd)
+          gte(payments.paidAt, monthStart),
+          lt(payments.paidAt, nextMonthStart)
         )
       );
 
@@ -90,7 +90,7 @@ export async function GET() {
         )
       );
 
-    // Calculate daysOverdue cleanly in JavaScript (100% portable on PostgreSQL & MySQL)
+    // Calculate daysOverdue in JavaScript for database portability.
     const unpaidClients = unpaidClientsRaw.map((c) => ({
       ...c,
       daysOverdue: Math.max(

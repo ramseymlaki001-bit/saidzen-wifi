@@ -69,7 +69,8 @@ export default function ClientsPage() {
   }, []);
 
   useEffect(() => {
-    loadClients();
+    const initialLoad = window.setTimeout(() => void loadClients(), 0);
+    return () => window.clearTimeout(initialLoad);
   }, [loadClients]);
 
   async function handleSubmit(e: React.FormEvent) {

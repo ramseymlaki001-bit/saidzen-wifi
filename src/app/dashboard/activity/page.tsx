@@ -55,10 +55,13 @@ export default function ActivityPage() {
   }, [filter]);
 
   useEffect(() => {
-    load();
+    const initialLoad = window.setTimeout(() => void load(), 0);
     // Live refresh kila sekunde 20 — kurasa zinabaki "zikiwasiliana"
     const interval = setInterval(load, 20000);
-    return () => clearInterval(interval);
+    return () => {
+      window.clearTimeout(initialLoad);
+      clearInterval(interval);
+    };
   }, [load]);
 
   if (loading) {

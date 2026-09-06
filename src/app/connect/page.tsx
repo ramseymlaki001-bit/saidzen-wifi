@@ -50,9 +50,12 @@ export default function ConnectPage() {
 
   useEffect(() => {
     if (!result) return;
-    checkStatus(result.token);
+    const initialCheck = window.setTimeout(() => void checkStatus(result.token), 0);
     const interval = setInterval(() => checkStatus(result.token), 3000);
-    return () => clearInterval(interval);
+    return () => {
+      window.clearTimeout(initialCheck);
+      clearInterval(interval);
+    };
   }, [result, checkStatus]);
 
   async function handleGenerate(e: React.FormEvent) {

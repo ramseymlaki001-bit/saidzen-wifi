@@ -13,9 +13,9 @@ http://IP_YA_SEVA:3000/api/setup
 ```
 **Inapaswa kuonyesha:** `"success":true` na orodha ya majedwali 9.
 
-> Ikiwa itaonyesha hitilafu ya `ECONNREFUSED` → angalia `DATABASE_URL` kwenye `.env` na hakikisha PostgreSQL inaendesha:
+> Ikiwa itaonyesha hitilafu ya `ECONNREFUSED` → angalia `DATABASE_URL` kwenye `.env` na hakikisha MySQL inaendesha:
 > ```bash
-> systemctl status postgresql
+> systemctl status mysql
 > ```
 
 ### ☐ 1.2 Fungua bandari kwenye Security Group (Tencent Cloud)
@@ -241,7 +241,7 @@ pm2 status              # hali ya programu
 
 | Tatizo | Suluhisho |
 |--------|-----------|
-| `/api/setup` inashindwa | Angalia `DATABASE_URL` kwenye `.env`; `systemctl status postgresql` |
+| `/api/setup` inashindwa | Angalia `DATABASE_URL` kwenye `.env`; `systemctl status mysql` |
 | Tovuti haifunguki kutoka nje | Fungua TCP 3000 kwenye **Security Group** ya Tencent |
 | `ping 10.8.0.2` inashindwa | Fungua UDP 51820 pande zote; angalia `wg show`; hakikisha IP za router hazigawani |
 | Programu inakufa ukifunga SSH | `pm2 start ecosystem.config.js && pm2 save && pm2 startup` |

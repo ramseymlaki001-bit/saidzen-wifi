@@ -59,7 +59,8 @@ export default function SupportPage() {
   }, []);
 
   useEffect(() => {
-    loadClients();
+    const initialLoad = window.setTimeout(() => void loadClients(), 0);
+    return () => window.clearTimeout(initialLoad);
   }, [loadClients]);
 
   async function runDiagnostics(clientId: number) {
@@ -275,7 +276,7 @@ export default function SupportPage() {
               {selectedClient === c.id && blockReason !== undefined && (
                 <div className="px-4 pb-4 border-t border-slate-100 pt-3 animate-fadeIn">
                   <h4 className="text-xs font-bold text-rose-700 mb-2">
-                    Zima Huduma ya "{c.businessName}"
+                    Zima Huduma ya &quot;{c.businessName}&quot;
                   </h4>
                   <div className="flex gap-2">
                     <input

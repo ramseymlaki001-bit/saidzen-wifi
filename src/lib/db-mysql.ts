@@ -9,7 +9,7 @@ export async function insertReturning<T = any>(
   values: any
 ): Promise<T> {
   try {
-    // Katika PostgreSQL, .returning() inafanya kazi moja kwa moja
+    // MySQL haina returning; fallback ya insertId iko hapa chini.
     const rows: any = await (db.insert(table) as any).values(values).returning();
     return rows[0] as T;
   } catch {
@@ -35,7 +35,7 @@ export async function updateReturning<T = any>(
     const rows: any = await (db.update(table) as any).set(values).where(eq(table.id, id)).returning();
     if (rows && rows.length > 0) return rows[0] as T;
   } catch {
-    // fallback ya kawaida
+    // MySQL fallback ya kawaida.
   }
   await db.update(table).set(values).where(eq(table.id, id));
   const rows: any[] = await db
