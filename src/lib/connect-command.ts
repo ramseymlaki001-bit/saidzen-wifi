@@ -143,7 +143,8 @@ ${detection}
 
 # ============================================================
 #  KUMBUKA: RouterOS 6 haina WireGuard.
-#  Router inahitaji IP ya umma au port-forward salama ya 8728.
+#  IP ya ndani inafanya kazi ikiwa website iko kwenye LAN hiyo.
+#  Kwa Vercel, tumia Public IP/port-forward au VPN kwa API ya 8728.
 #  Baada ya kuunganishwa, zima rule ya muda:
 #  /ip firewall filter disable [find comment="SaidZen API - temporary"]
 # ============================================================`;

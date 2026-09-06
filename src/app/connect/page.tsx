@@ -216,7 +216,7 @@ export default function ConnectPage() {
                   className="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm font-mono outline-none focus:border-emerald-500"
                 />
                 <p className="text-[11px] text-slate-500 mt-1">
-                  Tumia Public IP bila <code>/24</code> au <code>http://</code>.
+                  Weka IP ya router bila <code>/24</code> au <code>http://</code>.
                 </p>
               </div>
 
@@ -319,8 +319,8 @@ export default function ConnectPage() {
                     <span className="font-bold text-sm">RouterOS 6 / Direct API</span>
                   </div>
                   <p className="text-xs text-slate-400 mt-1">
-                    Inafanya kazi kwenye RouterOS 6. Router inahitaji IP ya umma
-                    au port-forward ya bandari 8728.
+                    IP ya ndani inaruhusiwa kwa usajili. Kwa dashboard ya Vercel,
+                    tumia Public IP/port-forward au VPN ili vocha zitumike.
                   </p>
                 </button>
               </div>

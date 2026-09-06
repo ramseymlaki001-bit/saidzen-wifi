@@ -81,16 +81,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if ((mode === "direct" || mode === "auto") && isLocalRouterIp(cleanRouterIp)) {
-      return NextResponse.json(
-        {
-          error:
-            "192.168.x.x ni IP ya ndani haiwezi kufikiwa na website ya Vercel. Tumia Public IP ya router na port-forward ya 8728.",
-        },
-        { status: 400 }
-      );
-    }
-
     const appUrl = getAppUrl();
     if (/localhost|127\.0\.0\.1|0\.0\.0\.0/i.test(appUrl)) {
       return NextResponse.json(
@@ -130,15 +120,6 @@ export async function POST(request: NextRequest) {
       return isIP(host) === 4 ? host : "";
     }
 
-    function isLocalRouterIp(ip: string): boolean {
-      const parts = ip.split(".").map(Number);
-      return (
-        parts[0] === 10 ||
-        (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) ||
-        (parts[0] === 192 && parts[1] === 168) ||
-        parts[0] === 127
-      );
-    }
 
     // Futa token ya zamani ya username hii ili kuruhusu mpya
     await db
