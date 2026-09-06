@@ -18,25 +18,20 @@
 services:
   # ── 1. Database (MySQL 8) ───────────────────────────────────────
   db:
-    image: mysql:8.0
+    image: postgres:16-alpine
     container_name: saidzen_db
     restart: unless-stopped
-    command: >
-      --character-set-server=utf8mb4
-      --collation-server=utf8mb4_unicode_ci
-      --default-authentication-plugin=mysql_native_password
     environment:
       # ⚠️ BADILISHA manenosiri haya kwa usalama wa biashara yako halisi!
-      MYSQL_ROOT_PASSWORD: saidzen_root_pass_2026
-      MYSQL_DATABASE: saidzen_db
-      MYSQL_USER: saidzen
-      MYSQL_PASSWORD: saidzen_secure_db_pass_2026
+      POSTGRES_DB: app_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
       # Inahifadhi data ya wateja na vocha daima hata kontena likizimwa
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       # Inakagua kama database iko tayari kabla ya kuanzisha tovuti
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-psaidzen_root_pass_2026"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d app_db"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -60,7 +55,7 @@ services:
       #           faili la .env iliyo karibu na docker-compose.yml, na
       #           unaweza kufuta huduma ya 'db' hapa chuki.
       # Mfano (.env): DATABASE_URL=mysql://avnadmin:pass@host.aivencloud.com:25863/defaultdb?ssl-mode=REQUIRED
-      DATABASE_URL: ${DATABASE_URL:-mysql://saidzen:saidzen_secure_db_pass_2026@db:3306/saidzen_db}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:postgres@db:5432/app_db}
 
       # Funguo ya siri ya kuficha nenosiri za router za MikroTik (badilisha!)
       ENCRYPTION_KEY: badilisha-funguo-hii-iwe-ya-siri-ndefu-2026
@@ -82,4 +77,4 @@ services:
 
 # ── Hifadhi ya Kudumu (Persistent Storage) ───────────────────────
 volumes:
-  mysql_data:
+  postgres_data:

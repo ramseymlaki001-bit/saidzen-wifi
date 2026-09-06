@@ -157,7 +157,8 @@ export async function GET() {
       topClients,
       timestamp: now.toISOString(),
     });
-  } catch {
+  } catch (error) {
+    console.error("Admin stats error:", error);
     return NextResponse.json({ error: "Kosa la ndani" }, { status: 500 });
   }
 }
