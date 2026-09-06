@@ -9,6 +9,14 @@ import { getSession } from "@/lib/auth";
  */
 export async function GET() {
   try {
+    if (!process.env.DATABASE_URL) {
+      console.error("Admin stats error: DATABASE_URL is not configured");
+      return NextResponse.json(
+        { error: "Database haijawekwa kwenye server" },
+        { status: 503 }
+      );
+    }
+
     const session = await getSession();
     if (!session || session.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
