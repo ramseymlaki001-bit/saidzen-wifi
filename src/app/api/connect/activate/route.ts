@@ -6,7 +6,7 @@ import {
   clients,
   voucherProfiles,
 } from "@/db/schema";
-import { eq, and, gt } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { logAudit } from "@/lib/audit";
 import { allocatePortalSlug } from "@/lib/portal-slug";
 import { insertReturning } from "@/lib/db-mysql";
@@ -82,6 +82,7 @@ export async function POST(request: NextRequest) {
     const body = await readBody(request);
     const token = (body.token || "").trim();
     const reportedVpnIp = (body.vpnIp || "").trim();
+    const reportedRouterIp = (body.routerIp || "").trim();
     const routerPublicKey = (body.publicKey || "").trim();
 
     if (!token) {
@@ -91,20 +92,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Tafuta token halali (inasubiri + haijaisha muda)
-    const [pending] = await db
+    // Token iliyokamilika inaweza kurudiwa na RouterOS; usitengeneze akaunti mara mbili.
+    const [tokenEntry] = await db
       .select()
       .from(connectionTokens)
-      .where(
-        and(
-          eq(connectionTokens.token, token),
-          eq(connectionTokens.status, "pending"),
-          gt(connectionTokens.expiresAt, new Date())
-        )
-      )
+      .where(eq(connectionTokens.token, token))
       .limit(1);
 
-    if (!pending) {
+    if (!tokenEntry) {
       return NextResponse.json(
         {
           success: false,
@@ -114,6 +109,27 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    if (tokenEntry.status === "connected" && tokenEntry.clientId) {
+      return NextResponse.json({
+        success: true,
+        alreadyConnected: true,
+        message: "Router hii tayari imesajiliwa kikamilifu.",
+        clientId: tokenEntry.clientId,
+      });
+    }
+
+    if (tokenEntry.status !== "pending" || tokenEntry.expiresAt <= new Date()) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Token imeisha muda. Rudi kwenye website utengeneze command mpya.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const pending = tokenEntry;
 
     const detectedIp = detectRouterIp(request);
     // Tumia IP iliyotengwa na seva (si ile inayojiripoti, kwa usalama)
@@ -150,7 +166,7 @@ export async function POST(request: NextRequest) {
         portalSlug,
         businessName: pending.businessName,
         location: pending.location,
-        routerIp: detectedIp !== "haijulikani" ? detectedIp : vpnIp || "0.0.0.0",
+        routerIp: reportedRouterIp || (detectedIp !== "haijulikani" ? detectedIp : vpnIp || "0.0.0.0"),
         routerUsername: "admin",
         routerPasswordEncrypted: encrypt(""),
         routerPort: 8728,

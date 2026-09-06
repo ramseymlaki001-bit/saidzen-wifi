@@ -34,7 +34,8 @@ export async function POST(request: NextRequest) {
       dashboardPassword,
       location,
       phone,
-      mode = "wireguard",
+      routerIp,
+      mode = "direct",
     } = body;
 
     // ── Rate limit ────────────────────────────────────────────
@@ -64,6 +65,14 @@ export async function POST(request: NextRequest) {
     if (mode !== "wireguard" && mode !== "direct") {
       return NextResponse.json(
         { error: "Njia ya kuunganisha si sahihi." },
+        { status: 400 }
+      );
+    }
+
+    const cleanRouterIp = String(routerIp || "").trim();
+    if (mode === "direct" && !cleanRouterIp) {
+      return NextResponse.json(
+        { error: "IP ya router inahitajika kwa RouterOS 6 / Direct API." },
         { status: 400 }
       );
     }
@@ -142,7 +151,7 @@ export async function POST(request: NextRequest) {
     const built =
       mode === "wireguard"
         ? await buildMikrotikCommand({ token, vpnIp })
-        : await buildDirectApiCommand({ token });
+        : await buildDirectApiCommand({ token, routerIp: cleanRouterIp });
 
     const cfg = built.cfg;
     const appUrl = getAppUrl();

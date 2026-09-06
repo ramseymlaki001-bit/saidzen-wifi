@@ -92,7 +92,7 @@ export async function buildMikrotikCommand(opts: {
 # 5. Jisajili kwenye tovuti (inajifanya yenyewe)
 /tool fetch url="${callback}" http-method=post \\
   http-data="token=${token}&vpnIp=${vpnIp}" \\
-  mode=${fetchMode} as-value output=none
+  mode=${fetchMode} as-value output=user
 
 # ============================================================
 #  IMEKAMILIKA! Rudi kwenye tovuti kuona hali ya muunganisho.
@@ -107,6 +107,7 @@ export async function buildMikrotikCommand(opts: {
  */
 export async function buildDirectApiCommand(opts: {
   token: string;
+  routerIp: string;
 }): Promise<{ command: string; cfg: Awaited<ReturnType<typeof getWireguardConfig>> }> {
   const cfg = await getWireguardConfig();
   const appUrl = getAppUrl();
@@ -118,20 +119,22 @@ export async function buildDirectApiCommand(opts: {
 #  NAKILI MISTARI YOTE, kisha bandika kwenye WinBox → New Terminal
 # ============================================================
 
-# 1. Washa API ya MikroTik
-/ip service enable api
+# 1. Washa API ya MikroTik RouterOS 6
+/ip service set api disabled=no port=8728
 
 # 2. Ruhusu API kwa muda wa usajili (ifunge baada ya kuunganishwa)
 /ip firewall filter add chain=input protocol=tcp dst-port=8728 action=accept comment="SaidZen API - temporary" disabled=no
 
 # 3. Jisajili kwenye tovuti
 /tool fetch url="${callback}" http-method=post \\
-  http-data="token=${opts.token}&mode=direct" \\
-  mode=${fetchMode} as-value output=none
+  http-data="token=${opts.token}&mode=direct&routerIp=${opts.routerIp}" \\
+  mode=${fetchMode} as-value output=user
 
 # ============================================================
-#  KUMBUKA: Router yako inahitaji IP ya umma (public IP)
-#  au port-forward ya bandari 8728 kwenda router.
+#  KUMBUKA: RouterOS 6 haina WireGuard.
+#  Router inahitaji IP ya umma au port-forward salama ya 8728.
+#  Baada ya kuunganishwa, zima rule ya muda:
+#  /ip firewall filter disable [find comment="SaidZen API - temporary"]
 # ============================================================`;
 
   return { command, cfg };

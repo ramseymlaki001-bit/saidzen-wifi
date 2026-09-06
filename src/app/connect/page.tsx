@@ -29,7 +29,8 @@ export default function ConnectPage() {
     dashboardPassword: "",
     phone: "",
     location: "",
-    mode: "wireguard",
+    routerIp: "",
+    mode: "direct",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -204,6 +205,23 @@ export default function ConnectPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                  IP ya Router *
+                </label>
+                <input
+                  type="text"
+                  required={form.mode === "direct"}
+                  value={form.routerIp}
+                  onChange={(e) => setForm({ ...form, routerIp: e.target.value })}
+                  placeholder=" mfano 41.59.102.77"
+                  className="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm font-mono outline-none focus:border-emerald-500"
+                />
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Tumia Public IP ya router, si 192.168.x.x.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5">
                   Username ya Kuingia *{" "}
                   <span className="text-slate-500 font-normal">
                     (bila email)
@@ -256,14 +274,14 @@ export default function ConnectPage() {
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-lg">🔒</span>
-                    <span className="font-bold text-sm">WireGuard VPN</span>
+                    <span className="font-bold text-sm">RouterOS 7 + WireGuard</span>
                     <span className="ml-auto text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-bold">
                       INAPENDEKEZWA
                     </span>
                   </div>
                   <p className="text-xs text-slate-400 mt-1">
-                    Salama zaidi. Inafaa kama router iko nyuma ya NAT (haina IP
-                    ya umma).
+                    Salama zaidi, lakini inahitaji RouterOS 7+ na usanidi wa
+                    WireGuard kwenye seva.
                   </p>
                 </button>
 
@@ -278,11 +296,11 @@ export default function ConnectPage() {
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-lg">🌐</span>
-                    <span className="font-bold text-sm">IP ya Umma</span>
+                    <span className="font-bold text-sm">RouterOS 6 / Direct API</span>
                   </div>
                   <p className="text-xs text-slate-400 mt-1">
-                    Kama router yako ina IP ya umma au port-forward ya bandari
-                    8728.
+                    Inafanya kazi kwenye RouterOS 6. Router inahitaji IP ya umma
+                    au port-forward ya bandari 8728.
                   </p>
                 </button>
               </div>
