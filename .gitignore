@@ -1,0 +1,41 @@
+# ── Utegemezi ──
+node_modules/
+.pnp
+.pnp.js
+
+# ── Ujenzi ──
+.next/
+out/
+build/
+dist/
+
+# ── SIRI (LAZIMA — usiweke kwenye git kamwe) ──
+.env
+.env.local
+.env.*.local
+.env.production
+*.pem
+*.key
+!.env.example
+
+# ── Kumbukumbu na hifadhi ──
+logs/
+*.log
+npm-debug.log*
+backups/
+*.sql
+*.sql.gz
+
+# ── Faili za majaribio/zana za muda ──
+set-*.js
+list-*.js
+verify-*.js
+login-*.js
+*.tmp
+
+# ── Mfumo ──
+.DS_Store
+Thumbs.db
+*.tsbuildinfo
+next-env.d.ts
+.vercel

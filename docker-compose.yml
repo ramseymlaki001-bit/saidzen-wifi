@@ -1,0 +1,85 @@
+# 🐳 Docker Compose Config kwa Ajili ya SaidZen WiFi (MySQL) ────────
+#
+# Jinsi ya Kuanzisha Mfumo Mzima kwa Amri Moja:
+#   1. Washa mfumo:
+#      docker compose up -d
+#
+#   2. Tengeneza jedwali (mara ya kwanza tu):
+#      Fungua kwenye browser: http://IP_YA_SEVA:3000/api/setup
+#
+#   3. Angalia hali / kumbukumbu:
+#      docker compose ps
+#      docker compose logs -f web
+#
+#   4. Zima mfumo (data zako zitabaki salama):
+#      docker compose down
+# ───────────────────────────────────────────────────────────────────
+
+services:
+  # ── 1. Database (MySQL 8) ───────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: saidzen_db
+    restart: unless-stopped
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --default-authentication-plugin=mysql_native_password
+    environment:
+      # ⚠️ BADILISHA manenosiri haya kwa usalama wa biashara yako halisi!
+      MYSQL_ROOT_PASSWORD: saidzen_root_pass_2026
+      MYSQL_DATABASE: saidzen_db
+      MYSQL_USER: saidzen
+      MYSQL_PASSWORD: saidzen_secure_db_pass_2026
+    volumes:
+      # Inahifadhi data ya wateja na vocha daima hata kontena likizimwa
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      # Inakagua kama database iko tayari kabla ya kuanzisha tovuti
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-psaidzen_root_pass_2026"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ── 2. Tovuti (SaidZen WiFi) ────────────────────────────────────
+  web:
+    build: .
+    container_name: saidzen_web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        # Inasubiri hadi database iwe tayari (healthy) kabla ya kuwaka
+        condition: service_healthy
+    environment:
+      # ── MUUNGANISHO WA DATABASE ──
+      # Chaguo A: Hifadhidata ya ndani (kontena ya 'db' hapo juu)
+      # Chaguo B: Aiven Cloud / managed MySQL — weka DATABASE_URL kwenye
+      #           faili la .env iliyo karibu na docker-compose.yml, na
+      #           unaweza kufuta huduma ya 'db' hapa chuki.
+      # Mfano (.env): DATABASE_URL=mysql://avnadmin:pass@host.aivencloud.com:25863/defaultdb?ssl-mode=REQUIRED
+      DATABASE_URL: ${DATABASE_URL:-mysql://saidzen:saidzen_secure_db_pass_2026@db:3306/saidzen_db}
+
+      # Funguo ya siri ya kuficha nenosiri za router za MikroTik (badilisha!)
+      ENCRYPTION_KEY: badilisha-funguo-hii-iwe-ya-siri-ndefu-2026
+
+      # Funguo ya kulinda kazi za kiotomatiki za malipo na sync (badilisha!)
+      CRON_SECRET: badilisha-hii-iwe-funguo-ya-siri-ndefu-2026
+
+      # ── WireGuard VPN config ─────────────────────────────────────
+      # Weka funguo yako ya seva: cat /etc/wireguard/server_public.key
+      WIREGUARD_SERVER_PUBLIC_KEY: weka_funguo_ya_uma_ya_seva_hapa
+
+      # Weka IP ya umma ya VPS yako
+      WIREGUARD_SERVER_ENDPOINT: IP_YA_SEVA_YAKO
+      WIREGUARD_PORT: 51820
+      WIREGUARD_SUBNET_PREFIX: 10.8.0
+
+      # Anwani kamili ya tovuti yako (router inaitumia kujiandikisha)
+      NEXT_PUBLIC_APP_URL: http://IP_YA_SEVA_YAKO:3000
+
+# ── Hifadhi ya Kudumu (Persistent Storage) ───────────────────────
+volumes:
+  mysql_data:
