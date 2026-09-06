@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+<<<<<<< HEAD
 import { authFetch } from "@/lib/client-auth";
+=======
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
 interface Voucher {
   id: number;
@@ -26,7 +29,11 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(async () => {
+<<<<<<< HEAD
     const res = await authFetch("/api/vouchers");
+=======
+    const res = await fetch("/api/vouchers");
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
     const data = await res.json();
     setVouchers(Array.isArray(data) ? data : []);
     setLoading(false);

@@ -1,7 +1,16 @@
 {
+<<<<<<< HEAD
   "dialect": "postgresql",
   "schema": "./src/db/schema.ts",
   "dbCredentials": {
     "url": "postgresql://postgres:postgres@127.0.0.1:5432/app_db"
   }
 }
+=======
+    "dialect": "mysql",
+    "schema": "./src/db/schema.ts",
+    "dbCredentials": {
+        "url": "mysql://root:@127.0.0.1:3306/app_db"
+    }
+}
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a

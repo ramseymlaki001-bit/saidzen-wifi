@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+<<<<<<< HEAD
 import { setClientToken, authFetch } from "@/lib/client-auth";
+=======
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
 interface VoucherProfile {
   id: string;
@@ -77,11 +80,23 @@ export default function HomePage() {
   } | null>(null);
 
   useEffect(() => {
+<<<<<<< HEAD
     authFetch("/api/auth/session")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data && data.userId) {
           setCurrentSession(data);
+=======
+    fetch("/api/auth/session")
+      .then((res) => {
+        if (!res.ok) return null;
+        return res.json();
+      })
+      .then((data) => {
+        const user = data?.user ?? data;
+        if (user && user.userId) {
+          setCurrentSession(user);
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         }
       })
       .catch(() => {});
@@ -98,6 +113,11 @@ export default function HomePage() {
     setTestMessage("Inapima mawasiliano na MikroTik API...");
 
     try {
+<<<<<<< HEAD
+=======
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       const res = await fetch("/api/mikrotik/test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -107,8 +127,18 @@ export default function HomePage() {
           password: setupForm.apiPassword,
           port: parseInt(setupForm.apiPort) || 8728,
         }),
+<<<<<<< HEAD
       });
       const data = await res.json();
+=======
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      const contentType = res.headers.get("content-type") || "";
+      const data = contentType.includes("application/json")
+        ? await res.json()
+        : { error: `Server imerudisha response isiyotambulika (${res.status}).` };
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       if (res.ok && data.success) {
         setTestStatus("success");
         setTestMessage("Imefanikiwa! MikroTik API (Port " + setupForm.apiPort + ") inafanya kazi.");
@@ -116,9 +146,19 @@ export default function HomePage() {
         setTestStatus("failed");
         setTestMessage(data.error || "Imeshindikana kuunganisha router.");
       }
+<<<<<<< HEAD
     } catch {
       setTestStatus("failed");
       setTestMessage("Hitilafu ya mtandao wakati wa kupima.");
+=======
+    } catch (err) {
+      setTestStatus("failed");
+      setTestMessage(
+        err instanceof DOMException && err.name === "AbortError"
+          ? "Muda wa kuwasiliana na server umeisha."
+          : "Hitilafu ya kuwasiliana na server. Hakikisha website inaendelea."
+      );
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
     }
   }
 
@@ -152,10 +192,14 @@ export default function HomePage() {
       }
 
       // Success -> Redirect to vendor dashboard
+<<<<<<< HEAD
       if (data.token) {
         setClientToken(data.token);
       }
       window.location.href = data.token ? `/vendor/vouchers?auth=${encodeURIComponent(data.token)}` : "/vendor/vouchers";
+=======
+      router.push("/vendor/vouchers");
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
     } catch {
       setSetupError("Hitilafu ya seva. Jaribu tena.");
       setIsSubmittingSetup(false);
@@ -185,12 +229,20 @@ export default function HomePage() {
         return;
       }
 
+<<<<<<< HEAD
       if (data.token) {
         setClientToken(data.token);
       }
 
       const target = data.role === "admin" ? "/dashboard" : "/vendor";
       window.location.href = data.token ? `${target}?auth=${encodeURIComponent(data.token)}` : target;
+=======
+      if (data.role === "admin") {
+        router.push("/dashboard");
+      } else {
+        router.push("/vendor");
+      }
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
     } catch {
       setLoginError("Hitilafu ya mtandao.");
       setIsLoggingIn(false);
@@ -228,7 +280,11 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col selection:bg-brand-500 selection:text-white">
       {/* Top Notification Bar */}
+<<<<<<< HEAD
       <div className="bg-gradient-to-r from-brand-600 via-indigo-600 to-emerald-600 px-4 py-2 text-center text-xs sm:text-sm font-medium text-white flex items-center justify-center gap-2">
+=======
+      <div className="bg-linear-to-r from-brand-600 via-indigo-600 to-emerald-600 px-4 py-2 text-center text-xs sm:text-sm font-medium text-white flex items-center justify-center gap-2">
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         <span className="bg-white/20 px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider">
           Mfumo Mpya
         </span>
@@ -241,7 +297,11 @@ export default function HomePage() {
       <header className="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
+<<<<<<< HEAD
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center font-black text-xl text-white shadow-lg shadow-brand-500/20">
+=======
+            <div className="w-10 h-10 rounded-2xl bg-linear-to-tr from-brand-600 to-emerald-400 flex items-center justify-center font-black text-xl text-white shadow-lg shadow-brand-500/20">
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
               S
             </div>
             <div>
@@ -255,6 +315,7 @@ export default function HomePage() {
             </div>
           </div>
 
+<<<<<<< HEAD
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
             <Link
               href="/wifi"
@@ -303,6 +364,34 @@ export default function HomePage() {
                   className="px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-black bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-1.5"
                 >
                   <span>⚡</span> Unganisha Router
+=======
+          <div className="flex items-center gap-2 sm:gap-3">
+            {currentSession ? (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-300 hidden sm:inline">
+                  Karibu, <strong>{currentSession.name}</strong>
+                </span>
+                <Link
+                  href={currentSession.role === "admin" ? "/dashboard" : "/vendor"}
+                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold text-xs sm:text-sm rounded-xl transition-all shadow-md"
+                >
+                  🚀 Fungua Dashboard
+                </Link>
+              </div>
+            ) : (
+              <>
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  className="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors border border-slate-700/60"
+                >
+                  🔑 Ingia (Username / IP)
+                </button>
+                <button
+                  onClick={() => setShowSetupModal(true)}
+                  className="px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-1.5"
+                >
+                  <span>⚡ Unganisha Router</span>
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
                 </button>
               </>
             )}
@@ -320,7 +409,11 @@ export default function HomePage() {
           </div>
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
             Zalisha Vocha za MikroTik{" "}
+<<<<<<< HEAD
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-brand-400">
+=======
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-emerald-400 to-brand-400">
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
               Bila Kusumbuka na Email
             </span>
           </h1>
@@ -331,15 +424,24 @@ export default function HomePage() {
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <button
               onClick={() => setShowSetupModal(true)}
+<<<<<<< HEAD
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-brand-500 hover:from-emerald-400 hover:to-brand-400 text-slate-950 font-bold text-sm shadow-xl shadow-emerald-500/20 transition-all transform hover:-translate-y-0.5"
             >
               ⚡ Unganisha Router Yako Sasa
             </button>
             <Link
+=======
+              className="px-6 py-3 rounded-xl bg-linear-to-r from-emerald-500 to-brand-500 hover:from-emerald-400 hover:to-brand-400 text-slate-950 font-bold text-sm shadow-xl shadow-emerald-500/20 transition-all transform hover:-translate-y-0.5"
+            >
+              ⚡ Unganisha Router Yako Sasa (Hatua 1 Tu)
+            </button>
+            <a
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
               href="/connect"
               className="px-6 py-3 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold text-sm shadow-xl shadow-emerald-400/25 transition-all transform hover:-translate-y-0.5 flex items-center gap-2"
             >
               📋 Pata Command ya WinBox
+<<<<<<< HEAD
             </Link>
             <Link
               href="/wifi"
@@ -347,6 +449,9 @@ export default function HomePage() {
             >
               📶 Fungua WiFi Portal
             </Link>
+=======
+            </a>
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
             <a
               href="#instructions"
               className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition-colors border border-slate-700"

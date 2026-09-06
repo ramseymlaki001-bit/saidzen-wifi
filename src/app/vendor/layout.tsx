@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
+<<<<<<< HEAD
 import {
   authFetch,
   saveStoredToken,
@@ -10,6 +11,8 @@ import {
   getClientToken,
   stripAuthFromUrl,
 } from "@/lib/client-auth";
+=======
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
 interface Session {
   userId: number;
@@ -23,6 +26,7 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [session, setSession] = useState<Session | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+<<<<<<< HEAD
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
@@ -70,12 +74,38 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
       await authFetch("/api/auth/logout", { method: "POST" });
     } catch {}
     window.location.href = "/login";
+=======
+
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
+      .then((data) => {
+        if (data.role === "admin") {
+          router.push("/dashboard");
+          return;
+        }
+        setSession(data);
+      })
+      .catch(() => router.push("/login"));
+  }, [router]);
+
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
   }
 
   if (!session) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
+<<<<<<< HEAD
         <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+=======
+        <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       </div>
     );
   }
@@ -118,6 +148,7 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
           </Link>
         </div>
 
+<<<<<<< HEAD
         {/* Admin Switcher Banner if role is admin */}
         {session.role === "admin" && (
           <div className="m-3 p-3 bg-brand-900/60 border border-brand-500/40 rounded-xl text-xs space-y-1.5">
@@ -136,6 +167,8 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
           </div>
         )}
 
+=======
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         <nav className="p-3 space-y-1">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
@@ -146,7 +179,11 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                   isActive
+<<<<<<< HEAD
                     ? "bg-emerald-500/20 text-emerald-300 font-bold"
+=======
+                    ? "bg-emerald-500/20 text-emerald-300"
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
                     : "text-slate-300 hover:bg-white/5 hover:text-white"
                 }`}
               >
@@ -155,6 +192,7 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
               </Link>
             );
           })}
+<<<<<<< HEAD
 
           <div className="pt-2 mt-2 border-t border-white/10 space-y-1">
             <Link
@@ -185,6 +223,11 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 bg-emerald-950">
+=======
+        </nav>
+
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
           <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 bg-emerald-500/30 rounded-full flex items-center justify-center text-sm font-bold text-emerald-300">
               {session.name.charAt(0).toUpperCase()}
@@ -192,20 +235,31 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
             <div className="min-w-0">
               <div className="text-sm font-medium truncate">{session.name}</div>
               <div className="text-xs text-slate-400 truncate">
+<<<<<<< HEAD
                 {session.role === "admin" ? "Super Admin" : "Vendor"}
+=======
+                {session.email}
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
               </div>
             </div>
           </div>
           <button
             onClick={handleLogout}
+<<<<<<< HEAD
             className="w-full text-left px-4 py-2 text-sm text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2"
           >
             <span>🚪</span> Toka
+=======
+            className="w-full text-left px-4 py-2 text-sm text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+          >
+            🚪 Toka
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
           </button>
         </div>
       </aside>
 
       {/* Main content */}
+<<<<<<< HEAD
       <div className="flex-1 min-w-0 flex flex-col">
         <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
           <div className="flex items-center gap-4">
@@ -251,6 +305,34 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
         </header>
 
         <main className="p-6 flex-1 animate-fadeIn">{children}</main>
+=======
+      <div className="flex-1 min-w-0">
+        <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center gap-4 sticky top-0 z-20">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="lg:hidden p-2 hover:bg-slate-100 rounded-lg"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+          <h1 className="text-lg font-semibold text-slate-800">
+            {navItems.find((i) => i.href === pathname)?.label || "Vendor"}
+          </h1>
+        </header>
+
+        <main className="p-6 animate-fadeIn">{children}</main>
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       </div>
     </div>
   );

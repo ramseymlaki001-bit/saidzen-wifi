@@ -2,7 +2,10 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
+<<<<<<< HEAD
 import Link from "next/link";
+=======
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
 interface Pkg {
   id: number;
@@ -223,6 +226,7 @@ export default function WifiPortalPage() {
   if (notFound) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+<<<<<<< HEAD
         <div className="max-w-sm w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center space-y-3">
           <span className="text-5xl">📡</span>
           <h1 className="text-xl font-black text-white">Hotspot Haipatikani</h1>
@@ -249,12 +253,28 @@ export default function WifiPortalPage() {
               0777 378 300
             </a>
           </p>
+=======
+        <div className="max-w-sm w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center space-y-4">
+          <span className="text-5xl">📡</span>
+          <h1 className="text-xl font-black text-white">Hotspot Haipatikani</h1>
+          <p className="text-sm text-slate-400">
+            Anwani ya hotspot si sahihi. Hakikisha umeunganisha kwenye WiFi
+            sahihi na ufungue tena ukurasa.
+          </p>
+          <a
+            href="tel:0777378300"
+            className="block w-full py-3 bg-emerald-500 text-slate-950 rounded-xl font-bold text-sm"
+          >
+            📞 Piga 0777 378 300
+          </a>
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         </div>
       </div>
     );
   }
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
       <div className="max-w-md mx-auto min-h-screen flex flex-col">
         {/* ── Top Navigation Bar ── */}
@@ -276,6 +296,13 @@ export default function WifiPortalPage() {
         {/* ── Header ── */}
         <header className="pt-6 pb-6 px-5 text-center">
           <div className="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-tr from-brand-500 to-emerald-400 flex items-center justify-center text-3xl shadow-xl shadow-emerald-500/20 mb-4">
+=======
+    <div className="min-h-screen bg-linear-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
+      <div className="max-w-md mx-auto min-h-screen flex flex-col">
+        {/* ── Header ── */}
+        <header className="pt-10 pb-6 px-5 text-center">
+          <div className="w-16 h-16 mx-auto rounded-3xl bg-linear-to-tr from-brand-500 to-emerald-400 flex items-center justify-center text-3xl shadow-xl shadow-emerald-500/20 mb-4">
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
             📶
           </div>
           <h1 className="text-2xl font-black leading-tight">
@@ -505,7 +532,11 @@ export default function WifiPortalPage() {
                 </div>
               ) : purchase?.success && purchase.voucher ? (
                 /* ── VOCHA IMETOKA ── */
+<<<<<<< HEAD
                 <div className="bg-gradient-to-br from-emerald-500/15 to-brand-500/10 border-2 border-emerald-500/40 rounded-3xl p-6 space-y-4 animate-fadeIn">
+=======
+                <div className="bg-linear-to-br from-emerald-500/15 to-brand-500/10 border-2 border-emerald-500/40 rounded-3xl p-6 space-y-4 animate-fadeIn">
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
                   <div className="text-center">
                     <span className="text-5xl">🎉</span>
                     <h2 className="text-lg font-black text-white mt-2">

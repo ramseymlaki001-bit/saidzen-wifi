@@ -62,10 +62,16 @@ export default function ConnectPage() {
     setResult(null);
 
     try {
+<<<<<<< HEAD
+=======
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       const res = await fetch("/api/connect/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
+<<<<<<< HEAD
       });
       const data = await res.json();
 
@@ -76,6 +82,27 @@ export default function ConnectPage() {
       }
     } catch {
       setError("Kosa la mtandao. Jaribu tena.");
+=======
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      const contentType = res.headers.get("content-type") || "";
+      const data = contentType.includes("application/json")
+        ? await res.json()
+        : { error: `Server imerudisha ukurasa usiotarajiwa (${res.status}).` };
+
+      if (!res.ok) {
+        setError(data.error || `Imeshindikana kuzalisha command (${res.status})`);
+      } else {
+        setResult(data);
+      }
+    } catch (err) {
+      setError(
+        err instanceof DOMException && err.name === "AbortError"
+          ? "Server imechelewa kujibu. Kagua server na database, kisha jaribu tena."
+          : "Kosa la kuwasiliana na server. Hakikisha website inaendelea kwenye port 3000."
+      );
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
     }
     setLoading(false);
   }
@@ -93,7 +120,11 @@ export default function ConnectPage() {
       <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur">
         <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
+<<<<<<< HEAD
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center font-black text-white">
+=======
+            <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-brand-600 to-emerald-400 flex items-center justify-center font-black text-white">
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
               S
             </div>
             <span className="font-extrabold text-lg">
@@ -101,6 +132,7 @@ export default function ConnectPage() {
               <span className="text-brand-400 font-light">WiFi</span>
             </span>
           </Link>
+<<<<<<< HEAD
           <div className="flex items-center gap-2">
             <Link
               href="/wifi"
@@ -115,6 +147,14 @@ export default function ConnectPage() {
               🔑 Ingia →
             </Link>
           </div>
+=======
+          <Link
+            href="/login"
+            className="text-xs px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 font-medium"
+          >
+            Tayari nina akaunti →
+          </Link>
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         </div>
       </header>
 
@@ -126,7 +166,11 @@ export default function ConnectPage() {
           </div>
           <h1 className="text-3xl sm:text-4xl font-black">
             Unganisha Router Yako kwa{" "}
+<<<<<<< HEAD
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-brand-400">
+=======
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-emerald-400 to-brand-400">
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
               Command Moja
             </span>
           </h1>

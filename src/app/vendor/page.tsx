@@ -2,7 +2,10 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+<<<<<<< HEAD
 import { authFetch } from "@/lib/client-auth";
+=======
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
 interface Router {
   id: number;
@@ -60,7 +63,11 @@ export default function VendorDashboard() {
     setAddingRouter(true);
     setAddRouterMsg("");
     try {
+<<<<<<< HEAD
       const res = await authFetch("/api/mikrotik/quick-connect", {
+=======
+      const res = await fetch("/api/mikrotik/quick-connect", {
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newRouter),
@@ -91,12 +98,18 @@ export default function VendorDashboard() {
 
   const loadStats = useCallback(async () => {
     try {
+<<<<<<< HEAD
       const res = await authFetch("/api/stats");
       if (!res.ok) return;
       const data = await res.json();
       if (data && !data.error) {
         setStats(data);
       }
+=======
+      const res = await fetch("/api/stats");
+      const data = await res.json();
+      setStats(data);
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
     } catch {
       /* kimya */
     }
@@ -116,7 +129,11 @@ export default function VendorDashboard() {
     setIsPinging(true);
     setPingStatus(null);
     try {
+<<<<<<< HEAD
       const res = await authFetch("/api/mikrotik/test", {
+=======
+      const res = await fetch("/api/mikrotik/test", {
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ host, port }),
@@ -154,7 +171,11 @@ export default function VendorDashboard() {
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
+<<<<<<< HEAD
       <div className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+=======
+      <div className="bg-linear-to-r from-emerald-600 via-emerald-500 to-teal-600 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         <div>
           <div className="inline-flex items-center gap-2 bg-black/15 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-2">
             <span>✨</span> Mfumo Wako Uko Hewani
@@ -348,6 +369,7 @@ export default function VendorDashboard() {
                       </div>
                     )}
                     {r.portalSlug && (
+<<<<<<< HEAD
                       <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
                         <Link
                           href={`/wifi/${r.portalSlug}`}
@@ -373,6 +395,22 @@ export default function VendorDashboard() {
                           {copiedPortal === String(r.id) ? "✓ Imenakiliwa!" : "📋 Nakili"}
                         </button>
                       </div>
+=======
+                      <button
+                        onClick={() => {
+                          const url = `${window.location.origin}/wifi/${r.portalSlug}`;
+                          navigator.clipboard.writeText(url);
+                          setCopiedPortal(String(r.id));
+                          setTimeout(() => setCopiedPortal(""), 2500);
+                        }}
+                        title="Bonyeza kunakili anwani ya portal ya wateja wako"
+                        className="mt-1 inline-flex items-center gap-1 text-[11px] font-mono bg-brand-50 hover:bg-brand-100 text-brand-700 px-2 py-1 rounded-lg border border-brand-200 transition-colors"
+                      >
+                        {copiedPortal === String(r.id)
+                          ? "✓ Imenakiliwa!"
+                          : `🔗 /wifi/${r.portalSlug}`}
+                      </button>
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
                     )}
                   </div>
                   <span

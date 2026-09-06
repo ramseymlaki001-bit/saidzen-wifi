@@ -89,8 +89,12 @@ export async function setSetting(key: SettingKey, value: string): Promise<void> 
   await db
     .insert(systemSettings)
     .values({ key, value: value.trim() })
+<<<<<<< HEAD
     .onConflictDoUpdate({
       target: systemSettings.key,
+=======
+    .onDuplicateKeyUpdate({
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       set: { value: value.trim(), updatedAt: new Date() },
     });
 }

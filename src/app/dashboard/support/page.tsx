@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+<<<<<<< HEAD
 import { authFetch } from "@/lib/client-auth";
+=======
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
 interface Client {
   id: number;
@@ -49,7 +52,11 @@ export default function SupportPage() {
 
   const loadClients = useCallback(async () => {
     try {
+<<<<<<< HEAD
       const res = await authFetch("/api/clients");
+=======
+      const res = await fetch("/api/clients");
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       const data = await res.json();
       setClients(Array.isArray(data) ? data : []);
     } catch (e) {
@@ -68,7 +75,11 @@ export default function SupportPage() {
     setDiagnostics(null);
 
     try {
+<<<<<<< HEAD
       const res = await authFetch(`/api/clients/${clientId}/diagnostics`, {
+=======
+      const res = await fetch(`/api/clients/${clientId}/diagnostics`, {
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         method: "POST",
       });
       const data = await res.json();
@@ -94,7 +105,11 @@ export default function SupportPage() {
     }
     setBlocking(true);
     try {
+<<<<<<< HEAD
       const res = await authFetch(`/api/clients/${clientId}/block-user`, {
+=======
+      const res = await fetch(`/api/clients/${clientId}/block-user`, {
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason: blockReason }),
@@ -113,7 +128,11 @@ export default function SupportPage() {
   }
 
   async function reactivateClient(clientId: number) {
+<<<<<<< HEAD
     const res = await authFetch(`/api/clients/${clientId}/toggle`, {
+=======
+    const res = await fetch(`/api/clients/${clientId}/toggle`, {
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "activate" }),
@@ -144,7 +163,11 @@ export default function SupportPage() {
   return (
     <div className="space-y-6">
       {/* Support Header */}
+<<<<<<< HEAD
       <div className="bg-gradient-to-r from-brand-700 to-brand-900 rounded-2xl p-6 text-white">
+=======
+      <div className="bg-linear-to-r from-brand-700 to-brand-900 rounded-2xl p-6 text-white">
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl font-black">🎧 Msaada wa Wateja</h2>

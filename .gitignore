@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ── Utegemezi ──
 node_modules/
 .pnp
@@ -39,3 +40,11 @@ Thumbs.db
 *.tsbuildinfo
 next-env.d.ts
 .vercel
+=======
+node_modules/
+.next/
+.env
+.env.*
+!.env.example
+logs/
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a

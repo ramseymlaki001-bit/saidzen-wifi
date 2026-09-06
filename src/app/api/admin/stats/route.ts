@@ -21,6 +21,7 @@ export async function GET() {
     // Client counts
     const { sql } = await import("drizzle-orm");
 
+<<<<<<< HEAD
     const [totalClients] = await db
       .select({ count: sql<number>`count(*)` })
       .from(clients);
@@ -60,11 +61,59 @@ export async function GET() {
 
     // Clients who haven't paid this month (subscription expired before today)
     const unpaidClientsRaw = await db
+=======
+    const { payments, vouchers } = await import("@/db/schema");
+
+    const [
+      [totalClients],
+      [activeClients],
+      [expiredClients],
+      [suspendedClients],
+      [monthlyRevenue],
+      [expectedRevenue],
+      unpaidClients,
+      recentPayments,
+      [totalVouchers],
+      [monthlyVouchers],
+      topClients,
+    ] = await Promise.all([
+      db.select({ count: sql<number>`count(*)` }).from(clients),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(clients)
+        .where(eq(clients.status, "active")),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(clients)
+        .where(eq(clients.status, "expired")),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(clients)
+        .where(eq(clients.status, "suspended")),
+      db
+        .select({ total: sql<string>`coalesce(sum(amount), 0)` })
+        .from(payments)
+        .where(
+          and(
+            gt(payments.paidAt, monthStart),
+            lt(payments.paidAt, monthEnd)
+          )
+        ),
+      db
+        .select({ total: sql<string>`coalesce(sum(monthly_fee), 0)` })
+        .from(clients)
+        .where(eq(clients.status, "active")),
+      db
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       .select({
         id: clients.id,
         businessName: clients.businessName,
         monthlyFee: clients.monthlyFee,
         subscriptionEnd: clients.subscriptionEnd,
+<<<<<<< HEAD
+=======
+        daysOverdue: sql<number>`DATEDIFF(NOW(), ${clients.subscriptionEnd})`,
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         userName: users.name,
         userPhone: users.phone,
         routerIp: clients.routerIp,
@@ -80,6 +129,7 @@ export async function GET() {
             eq(clients.status, "expired")
           )
         )
+<<<<<<< HEAD
       );
 
     // Calculate daysOverdue cleanly in JavaScript (100% portable on PostgreSQL & MySQL)
@@ -131,16 +181,53 @@ export async function GET() {
           businessName: clients.businessName,
           voucherCount: sql<number>`count(*)`,
           totalRevenue: sql<string>`coalesce(sum(${payments.amount}), 0)`,
+=======
+      ),
+      db
+        .select({
+          id: payments.id,
+          amount: payments.amount,
+          method: payments.method,
+          paidAt: payments.paidAt,
+          businessName: clients.businessName,
+          reference: payments.reference,
+          mpesaReceiptNumber: payments.mpesaReceiptNumber,
+        })
+        .from(payments)
+        .innerJoin(clients, eq(payments.clientId, clients.id))
+        .orderBy(sql`${payments.paidAt} desc`)
+        .limit(10),
+      db.select({ count: sql<number>`count(*)` }).from(vouchers),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(vouchers)
+        .where(gte(vouchers.createdAt, monthStart)),
+      db
+        .select({
+          businessName: clients.businessName,
+          voucherCount: sql<number>`count(*)`,
+          totalRevenue: sql<string>`sum(${payments.amount})`,
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         })
         .from(vouchers)
         .innerJoin(clients, eq(vouchers.clientId, clients.id))
         .leftJoin(payments, eq(clients.id, payments.clientId))
         .groupBy(clients.businessName)
         .orderBy(sql`count(*) desc`)
+<<<<<<< HEAD
         .limit(5);
     } catch {
       topClients = [];
     }
+=======
+        .limit(5),
+    ]);
+
+    const totalUnpaid = unpaidClients.reduce(
+      (sum, c) => sum + Number(c.monthlyFee),
+      0
+    );
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
     return NextResponse.json({
       totalClients: totalClients.count,

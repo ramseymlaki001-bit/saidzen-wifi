@@ -86,7 +86,10 @@ export async function POST(request: NextRequest) {
     let newClient;
     let displayName;
     let portalSlug = "";
+<<<<<<< HEAD
     let sessionToken: string | undefined;
+=======
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
     if (isExistingVendor) {
       // EXISTING VENDOR adding another router to their account
@@ -176,7 +179,11 @@ export async function POST(request: NextRequest) {
       newClient = client;
 
       // Auto login for new customer
+<<<<<<< HEAD
       sessionToken = await createSession(newUser.id);
+=======
+      await createSession(newUser.id);
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
       await logAudit({
         userId: newUser.id,
@@ -231,7 +238,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+<<<<<<< HEAD
       token: sessionToken,
+=======
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       message: isExistingVendor
         ? "Router ya ziada imeongezwa kikamilifu!"
         : "Router imeunganishwa kikamilifu na mfumo uko tayari!",

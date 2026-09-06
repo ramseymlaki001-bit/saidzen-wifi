@@ -2,10 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
+<<<<<<< HEAD
 import { useRouter } from "next/navigation";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
+=======
+
+export default function ResetPasswordPage() {
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
   const [step, setStep] = useState<1 | 2>(1);
   const [identifier, setIdentifier] = useState("");
   const [token, setToken] = useState("");
@@ -75,8 +80,13 @@ export default function ResetPasswordPage() {
 
       setSuccess("✅ Nenosiri limebadilishwa! Sasa unaweza kuingia.");
       setTimeout(() => {
+<<<<<<< HEAD
         router.push("/login");
       }, 1500);
+=======
+        window.location.href = "/login";
+      }, 2000);
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
     } catch {
       setError("Kosa la mtandao");
     }
@@ -84,7 +94,11 @@ export default function ResetPasswordPage() {
   }
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-gradient-to-br from-brand-950 via-slate-900 to-brand-900 flex items-center justify-center p-4">
+=======
+    <div className="min-h-screen bg-linear-to-br from-brand-950 via-slate-900 to-brand-900 flex items-center justify-center p-4">
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       <div className="w-full max-w-md animate-fadeIn">
         <Link href="/" className="flex items-center justify-center gap-3 mb-6">
           <div className="w-12 h-12 bg-brand-500 rounded-2xl flex items-center justify-center text-2xl font-bold text-white shadow-xl shadow-brand-500/30">

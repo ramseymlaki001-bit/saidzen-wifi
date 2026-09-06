@@ -2,20 +2,33 @@
 
 import { useState } from "react";
 import Link from "next/link";
+<<<<<<< HEAD
 import { setClientToken } from "@/lib/client-auth";
 
 export default function LoginPage() {
+=======
+import { useRouter } from "next/navigation";
+
+export default function LoginPage() {
+  const router = useRouter();
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+<<<<<<< HEAD
   const [success, setSuccess] = useState("");
+=======
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
+<<<<<<< HEAD
     setSuccess("");
+=======
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
     try {
       const res = await fetch("/api/auth/login", {
@@ -31,6 +44,7 @@ export default function LoginPage() {
         return;
       }
 
+<<<<<<< HEAD
       if (data.token) {
         setClientToken(data.token);
       }
@@ -42,6 +56,13 @@ export default function LoginPage() {
         : target;
 
       window.location.href = redirectUrl;
+=======
+      if (data.role === "admin") {
+        router.push("/dashboard");
+      } else {
+        router.push("/vendor");
+      }
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
     } catch {
       setError("Kosa la mtandao. Jaribu tena.");
       setLoading(false);
@@ -52,11 +73,18 @@ export default function LoginPage() {
     setIdentifier(user);
     setPassword(pass);
     setError("");
+<<<<<<< HEAD
     setSuccess("");
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-950 via-slate-900 to-brand-900 flex items-center justify-center p-4">
+=======
+  }
+
+  return (
+    <div className="min-h-screen bg-linear-to-br from-brand-950 via-slate-900 to-brand-900 flex items-center justify-center p-4">
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       <div className="w-full max-w-md animate-fadeIn">
         {/* Logo */}
         <Link href="/" className="flex items-center justify-center gap-3 mb-6">
@@ -79,6 +107,7 @@ export default function LoginPage() {
             </p>
           </div>
 
+<<<<<<< HEAD
           {success && (
             <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl mb-5 text-sm flex items-center gap-2 animate-fadeIn">
               <span className="w-4 h-4 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin shrink-0" />
@@ -86,6 +115,8 @@ export default function LoginPage() {
             </div>
           )}
 
+=======
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
           {error && (
             <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl mb-5 text-sm flex items-start gap-2">
               <span>⚠️</span>
@@ -103,7 +134,11 @@ export default function LoginPage() {
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-slate-800 transition-all font-medium placeholder:text-slate-400"
+<<<<<<< HEAD
                 placeholder="mfano: Rajabu au juma_wifi"
+=======
+                placeholder="mfano: juma_wifi au 192.168.1.1"
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
                 required
               />
             </div>
@@ -151,11 +186,16 @@ export default function LoginPage() {
           {/* Quick Demo Logins */}
           <div className="mt-3 pt-5 border-t border-slate-100">
             <p className="text-xs text-slate-400 text-center mb-2.5">
+<<<<<<< HEAD
               Au bonyeza kuingia mara moja kwa mbofyo mmoja:
+=======
+              Au bonyeza kuingia na akaunti ya mfano:
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
             </p>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
+<<<<<<< HEAD
                 onClick={() => fillDemo("Rajabu", "Allahakbar*123")}
                 className="px-3 py-2 text-xs bg-brand-50 hover:bg-brand-100 text-brand-800 rounded-xl font-medium text-left border border-brand-200/60 transition-colors"
               >
@@ -173,10 +213,26 @@ export default function LoginPage() {
                   <span>🏪</span> Vendor
                 </div>
                 <div className="text-[10px] text-emerald-600 font-mono">juma_wifi</div>
+=======
+                onClick={() => fillDemo("juma_wifi", "vendor123")}
+                className="px-3 py-2 text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl font-medium text-left border border-emerald-200/60 transition-colors"
+              >
+                <div className="font-bold">Hotspot ya Mfano</div>
+                <div className="text-[10px] text-emerald-600">juma_wifi</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => fillDemo("admin", "admin123")}
+                className="px-3 py-2 text-xs bg-brand-50 hover:bg-brand-100 text-brand-800 rounded-xl font-medium text-left border border-brand-200/60 transition-colors"
+              >
+                <div className="font-bold">Msimamizi (Admin)</div>
+                <div className="text-[10px] text-brand-600">admin</div>
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
               </button>
             </div>
           </div>
 
+<<<<<<< HEAD
           <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
             <Link
               href="/"
@@ -195,6 +251,14 @@ export default function LoginPage() {
               className="hover:text-brand-600 font-bold transition-colors text-emerald-600"
             >
               📶 WiFi Portal
+=======
+          <div className="mt-5 text-center">
+            <Link
+              href="/"
+              className="text-xs text-slate-500 hover:text-brand-600 transition-colors"
+            >
+              ← Rudi kwenye Ukurasa Mkuu & Unganisha Router
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
             </Link>
           </div>
         </div>

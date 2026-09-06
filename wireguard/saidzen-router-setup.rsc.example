@@ -1,0 +1,51 @@
+# SaidZen WiFi - MikroTik RouterOS v7 WireGuard setup
+#
+# Tumia kama template ya router moja.
+# Kabla ya ku-import, badilisha placeholders hizi:
+#   <SERVER_PUBLIC_KEY>  = WireGuard public key ya VPS/server
+#   <SERVER_ENDPOINT>    = IP au DNS ya VPS inayohost website
+#   <VPN_IP>             = IP uliyopewa na website, mfano 10.8.0.2
+#   <CONNECT_TOKEN>      = token ya one-time kutoka /connect
+#   <WEBSITE_URL>        = URL ya website, mfano https://wifi.example.com
+#
+# Usihifadhi private key kwenye repository. RouterOS itaitengeneza yenyewe.
+# Import kwenye WinBox -> New Terminal baada ya kubadilisha placeholders.
+
+# 1. WireGuard interface
+/interface wireguard
+add name=wg-saidzen listen-port=51820 mtu=1420 comment="SaidZen WiFi VPN"
+
+# 2. Anwani ya VPN ya router
+/ip address
+add address=<VPN_IP>/24 interface=wg-saidzen comment="SaidZen VPN address"
+
+# 3. Peer ya VPS inayohost website
+/interface wireguard peers
+add interface=wg-saidzen \
+    public-key="<SERVER_PUBLIC_KEY>" \
+    endpoint-address=<SERVER_ENDPOINT> \
+    endpoint-port=51820 \
+    allowed-address=10.8.0.0/24 \
+    persistent-keepalive=25 \
+    comment="SaidZen website server"
+
+# 4. Ruhusu website ifikie MikroTik API kupitia VPN pekee
+/ip service
+set api disabled=no port=8728 address=10.8.0.1/32
+
+# 5. Jisajili router kwenye website kupitia WireGuard
+/tool fetch url="<WEBSITE_URL>/api/connect/activate" \
+    http-method=post \
+    http-data="token=<CONNECT_TOKEN>&vpnIp=<VPN_IP>" \
+    mode=https as-value output=none
+
+# 6. Kagua hali ya tunnel
+/interface wireguard print
+/interface wireguard peers print detail
+/ping 10.8.0.1 count=4
+
+# Kumbuka:
+# - <VPN_IP> lazima iwe tofauti kwa kila router.
+# - Server lazima iwe na peer yenye public key ya router na AllowedIPs=<VPN_IP>/32.
+# - Usifungue API (8728) kwenye internet ya umma.
+# - Ukihitaji kubadilisha token, tengeneza token mpya kwenye website.

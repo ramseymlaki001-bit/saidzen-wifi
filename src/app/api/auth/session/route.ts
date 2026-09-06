@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 
@@ -37,6 +38,29 @@ export async function GET(request: NextRequest) {
     console.error("Session GET error:", err);
     return NextResponse.json(
       { error: "Kosa la ndani la seva" },
+=======
+import { NextResponse } from "next/server";
+import { getSession } from "@/lib/auth";
+
+export async function GET() {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ user: null }, { status: 200 });
+    }
+
+    return NextResponse.json({
+      user: {
+        userId: session.userId,
+        name: session.name,
+        email: session.email,
+        role: session.role,
+      },
+    });
+  } catch {
+    return NextResponse.json(
+      { error: "Kosa la ndani" },
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       { status: 500 }
     );
   }

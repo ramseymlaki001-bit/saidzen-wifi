@@ -17,7 +17,11 @@ import { affectedRows } from "@/lib/db-mysql";
  * inapata vocha zinazotumika HALISI, na kuzisasisha kwenye database.
  *
  * Kuendesha kiotomatiki kila dakika 5, weka kwenye crontab:
+<<<<<<< HEAD
  *   [5-minuta] curl -s http://localhost:3000/api/cron/sync-vouchers >> /var/log/saidzen-sync.log
+=======
+ *   Kila dakika 5: curl -s -H "x-cron-secret: FUNGUO_YAKO" http://localhost:3000/api/cron/sync-vouchers >> /var/log/saidzen-sync.log
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
  */
 export async function GET(request: NextRequest) {
   try {

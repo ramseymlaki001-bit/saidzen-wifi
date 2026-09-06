@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+<<<<<<< HEAD
 import { authFetch } from "@/lib/client-auth";
+=======
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
 
 interface Profile {
   id: number;
@@ -67,7 +70,11 @@ export default function VouchersPage() {
     setLoading(true);
     try {
       // Load routers first (to know if multi-router)
+<<<<<<< HEAD
       const sRes = await authFetch("/api/stats");
+=======
+      const sRes = await fetch("/api/stats");
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       const sData = await sRes.json();
       const routersList: Router[] = sData.routers || [];
       setRouters(routersList);
@@ -81,8 +88,13 @@ export default function VouchersPage() {
       const suffix = cid ? `?clientId=${cid}` : "";
 
       const [pRes, vRes] = await Promise.all([
+<<<<<<< HEAD
         authFetch(`/api/vouchers/profiles${suffix}`),
         authFetch(`/api/vouchers${suffix}`),
+=======
+        fetch(`/api/vouchers/profiles${suffix}`),
+        fetch(`/api/vouchers${suffix}`),
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       ]);
       const profilesData = await pRes.json();
       const vouchersData = await vRes.json();
@@ -110,7 +122,11 @@ export default function VouchersPage() {
     setGeneratedVouchers([]);
 
     try {
+<<<<<<< HEAD
       const res = await authFetch("/api/vouchers/generate", {
+=======
+      const res = await fetch("/api/vouchers/generate", {
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -144,7 +160,11 @@ export default function VouchersPage() {
     setSyncResult("");
     try {
       const suffix = selectedRouter ? `?clientId=${selectedRouter}` : "";
+<<<<<<< HEAD
       const res = await authFetch(`/api/vouchers/sync${suffix}`, { method: "POST" });
+=======
+      const res = await fetch(`/api/vouchers/sync${suffix}`, { method: "POST" });
+>>>>>>> 90914fb4ccbc7e8ddce0f0c51104f3f954fcc41a
       const data = await res.json();
 
       if (!res.ok) {
