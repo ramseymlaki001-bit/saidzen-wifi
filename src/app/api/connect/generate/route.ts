@@ -61,6 +61,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (mode !== "wireguard" && mode !== "direct") {
+      return NextResponse.json(
+        { error: "Njia ya kuunganisha si sahihi." },
+        { status: 400 }
+      );
+    }
+
     const cleanUsername = String(dashboardUsername)
       .trim()
       .toLowerCase()
@@ -89,6 +96,16 @@ export async function POST(request: NextRequest) {
     // Tengwa IP ya VPN (kwa WireGuard mode)
     let vpnIp = "";
     if (mode === "wireguard") {
+      const wireguardConfig = await getWireguardConfig();
+      if (!wireguardConfig.configured) {
+        return NextResponse.json(
+          {
+            error:
+              "WireGuard ya seva haijasanidiwa. Weka WIREGUARD_SERVER_PUBLIC_KEY na WIREGUARD_SERVER_ENDPOINT kwanza.",
+          },
+          { status: 503 }
+        );
+      }
       try {
         vpnIp = await allocateVpnIp();
       } catch (err) {

@@ -69,6 +69,9 @@ export default function VouchersPage() {
   });
   const [savingPackage, setSavingPackage] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [selectedVoucherIds, setSelectedVoucherIds] = useState<number[]>([]);
+  const [voucherSearch, setVoucherSearch] = useState("");
+  const [voucherStatus, setVoucherStatus] = useState<"all" | "unused" | "used" | "expired">("all");
   // Multi-router support
   const [routers, setRouters] = useState<Router[]>([]);
   const [selectedRouter, setSelectedRouter] = useState("");
@@ -99,6 +102,7 @@ export default function VouchersPage() {
 
       setProfiles(Array.isArray(profilesData) ? profilesData : []);
       setExistingVouchers(Array.isArray(vouchersData) ? vouchersData : []);
+      setSelectedVoucherIds([]);
       // Reset selected profile if it's not in the new list
       setSelectedProfile("");
     } catch (e) {
@@ -115,6 +119,12 @@ export default function VouchersPage() {
   async function handleGenerate(e: React.FormEvent) {
     e.preventDefault();
     if (!selectedProfile) return;
+    const requestedCount = Number(count);
+    const remaining = Math.max(0, 100 - existingVouchers.length);
+    if (!Number.isInteger(requestedCount) || requestedCount < 1 || requestedCount > remaining) {
+      setError(`Una nafasi ya vocha ${remaining} tu kwenye router hii.`);
+      return;
+    }
 
     setGenerating(true);
     setError("");
@@ -126,7 +136,7 @@ export default function VouchersPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           profileId: parseInt(selectedProfile),
-          count: parseInt(count),
+          count: requestedCount,
         }),
       });
 
@@ -199,9 +209,19 @@ export default function VouchersPage() {
     if (generatedVouchers.length === 0) return;
     const { jsPDF } = await import("jspdf");
     const doc = new jsPDF({ unit: "mm", format: "a4" });
-    doc.setFontSize(16);
-    doc.text(activeRouter?.businessName || "SaidZen WiFi", 15, 15);
-    doc.setFontSize(10);
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const drawHeader = (page: number) => {
+      doc.setFontSize(16);
+      doc.setTextColor(15, 23, 42);
+      doc.text(activeRouter?.businessName || "SaidZen WiFi", 15, 15);
+      doc.setFontSize(9);
+      doc.setTextColor(100, 116, 139);
+      doc.text(`Vocha ${generatedVouchers.length} • Ukurasa ${page}`, pageWidth - 15, 15, { align: "right" });
+      doc.line(15, 18, pageWidth - 15, 18);
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(10);
+    };
+    drawHeader(1);
     generatedVouchers.forEach((v, index) => {
       const column = index % 2;
       const row = Math.floor((index % 16) / 2);
@@ -209,7 +229,7 @@ export default function VouchersPage() {
       const y = 25 + row * 35;
       if (index > 0 && index % 16 === 0) {
         doc.addPage();
-        doc.setFontSize(10);
+        drawHeader(Math.floor(index / 16) + 1);
       }
       doc.rect(x, y, 85, 28);
       doc.text(`VOCHA #${index + 1} - ${v.profile}`, x + 4, y + 6);
@@ -217,6 +237,9 @@ export default function VouchersPage() {
       doc.text(`Password: ${v.password}`, x + 4, y + 19);
       doc.text(`${v.duration} | TSh ${Number(v.price).toLocaleString()}`, x + 4, y + 25);
     });
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.text("Imetengenezwa na SaidZen WiFi", 15, 290);
     doc.save(`vocha-${new Date().toISOString().slice(0, 10)}.pdf`);
   }
 
@@ -237,6 +260,7 @@ export default function VouchersPage() {
         setGeneratedVouchers([]);
         await loadData();
       }
+
     } catch {
       setError("Kosa la mtandao. Jaribu tena.");
     } finally {
@@ -287,6 +311,32 @@ export default function VouchersPage() {
     navigator.clipboard.writeText(text);
     setCopySuccess(true);
     setTimeout(() => setCopySuccess(false), 2000);
+  }
+
+  const filteredVouchers = existingVouchers.filter((voucher) => {
+    const query = voucherSearch.trim().toLowerCase();
+    const matchesSearch =
+      !query ||
+      voucher.code.toLowerCase().includes(query) ||
+      voucher.password.toLowerCase().includes(query) ||
+      voucher.profileName.toLowerCase().includes(query);
+    return matchesSearch && (voucherStatus === "all" || voucher.status === voucherStatus);
+  });
+
+  function toggleVoucherSelection(id: number) {
+    setSelectedVoucherIds((current) =>
+      current.includes(id) ? current.filter((selectedId) => selectedId !== id) : [...current, id]
+    );
+  }
+
+  function toggleVisibleVouchers() {
+    const visibleIds = filteredVouchers.map((voucher) => voucher.id);
+    const allSelected = visibleIds.length > 0 && visibleIds.every((id) => selectedVoucherIds.includes(id));
+    setSelectedVoucherIds((current) =>
+      allSelected
+        ? current.filter((id) => !visibleIds.includes(id))
+        : Array.from(new Set([...current, ...visibleIds]))
+    );
   }
 
   if (loading && routers.length === 0) {
@@ -445,6 +495,15 @@ export default function VouchersPage() {
             </div>
 
             <form onSubmit={handleGenerate} className="space-y-6">
+              <div className="flex items-center justify-between rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3">
+                <div>
+                  <p className="text-xs font-bold text-slate-700">Nafasi ya vocha</p>
+                  <p className="text-[11px] text-slate-500">Kikomo cha router hii ni vocha 100</p>
+                </div>
+                <span className={`text-lg font-black ${existingVouchers.length >= 100 ? "text-rose-600" : "text-emerald-600"}`}>
+                  {Math.max(0, 100 - existingVouchers.length)} <span className="text-xs font-semibold text-slate-500">zimebaki</span>
+                </span>
+              </div>
               {/* Profile Selection */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
@@ -738,13 +797,36 @@ export default function VouchersPage() {
       {activeTab === "list" && (
         <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
           {existingVouchers.length > 0 && (
-            <div className="flex items-center justify-between gap-3 px-6 py-4 border-b border-slate-100">
-              <p className="text-xs text-slate-500">
-                Vocha zilizohifadhiwa: <strong>{existingVouchers.length}/100</strong>
-              </p>
-              <button onClick={() => void handleDeleteVouchers()} disabled={deleting} className="px-3 py-2 rounded-xl bg-rose-50 text-rose-700 text-xs font-bold disabled:opacity-50">
-                {deleting ? "Inafuta..." : "Futa zote"}
-              </button>
+            <div className="space-y-3 px-6 py-4 border-b border-slate-100">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <p className="text-xs text-slate-500">
+                  Vocha zilizohifadhiwa: <strong>{existingVouchers.length}/100</strong> • Zinaonekana {filteredVouchers.length}
+                </p>
+                <div className="flex gap-2">
+                  {selectedVoucherIds.length > 0 && (
+                    <button onClick={() => void handleDeleteVouchers(selectedVoucherIds)} disabled={deleting} className="px-3 py-2 rounded-xl bg-rose-50 text-rose-700 text-xs font-bold disabled:opacity-50">
+                      Futa zilizochaguliwa ({selectedVoucherIds.length})
+                    </button>
+                  )}
+                  <button onClick={() => void handleDeleteVouchers()} disabled={deleting} className="px-3 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold disabled:opacity-50">
+                    {deleting ? "Inafuta..." : "Futa zote"}
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  value={voucherSearch}
+                  onChange={(event) => setVoucherSearch(event.target.value)}
+                  placeholder="Tafuta code, password au kifurushi..."
+                  className="flex-1 px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:border-emerald-500"
+                />
+                <select value={voucherStatus} onChange={(event) => setVoucherStatus(event.target.value as typeof voucherStatus)} className="px-3 py-2 border border-slate-200 rounded-xl text-xs bg-white">
+                  <option value="all">Hali zote</option>
+                  <option value="unused">Haijatumiwa</option>
+                  <option value="used">Imetumika</option>
+                  <option value="expired">Imepitwa</option>
+                </select>
+              </div>
             </div>
           )}
           {existingVouchers.length === 0 ? (
@@ -762,6 +844,14 @@ export default function VouchersPage() {
               <table className="w-full text-xs">
                 <thead className="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b">
                   <tr>
+                    <th className="text-left px-6 py-3.5">
+                      <input
+                        type="checkbox"
+                        aria-label="Chagua vocha zinazoonekana"
+                        checked={filteredVouchers.length > 0 && filteredVouchers.every((voucher) => selectedVoucherIds.includes(voucher.id))}
+                        onChange={toggleVisibleVouchers}
+                      />
+                    </th>
                     <th className="text-left px-6 py-3.5">Code (Username)</th>
                     <th className="text-left px-6 py-3.5">Password</th>
                     {routers.length > 1 && (
@@ -775,8 +865,11 @@ export default function VouchersPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {existingVouchers.map((v) => (
+                  {filteredVouchers.map((v) => (
                     <tr key={v.id} className="hover:bg-slate-50/80">
+                      <td className="px-6 py-3">
+                        <input type="checkbox" aria-label={`Chagua vocha ${v.code}`} checked={selectedVoucherIds.includes(v.id)} onChange={() => toggleVoucherSelection(v.id)} />
+                      </td>
                       <td className="px-6 py-3 font-mono font-black text-slate-900 text-sm">
                         {v.code}
                       </td>

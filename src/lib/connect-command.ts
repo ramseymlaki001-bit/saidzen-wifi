@@ -65,6 +65,7 @@ export async function buildMikrotikCommand(opts: {
   const cfg = await getWireguardConfig();
   const appUrl = getAppUrl();
   const callback = `${appUrl}/api/connect/activate`;
+  const fetchMode = appUrl.startsWith("https://") ? "https" : "http";
 
   const command = `# ============================================================
 #  ${cfg.businessName.toUpperCase()} — Command ya Kuunganisha Router
@@ -80,17 +81,18 @@ export async function buildMikrotikCommand(opts: {
 # 3. Unganisha na seva ya SaidZen
 /interface wireguard peers add interface=wg-saidzen \\
   public-key="${cfg.publicKey}" \\
-  endpoint=${cfg.endpoint}:${cfg.port} \\
+  endpoint-address=${cfg.endpoint} \\
+  endpoint-port=${cfg.port} \\
   allowed-address=${cfg.subnetPrefix}.0/24 \\
   persistent-keepalive=25
 
-# 4. Washa API ya MikroTik (ili tovuti iongee na router)
-/ip service enable api
+# 4. Washa API ya MikroTik kupitia VPN pekee
+/ip service set api disabled=no port=8728 address=${cfg.subnetPrefix}.0/24
 
 # 5. Jisajili kwenye tovuti (inajifanya yenyewe)
 /tool fetch url="${callback}" http-method=post \\
   http-data="token=${token}&vpnIp=${vpnIp}" \\
-  mode=http as-value output=none
+  mode=${fetchMode} as-value output=none
 
 # ============================================================
 #  IMEKAMILIKA! Rudi kwenye tovuti kuona hali ya muunganisho.
@@ -109,6 +111,7 @@ export async function buildDirectApiCommand(opts: {
   const cfg = await getWireguardConfig();
   const appUrl = getAppUrl();
   const callback = `${appUrl}/api/connect/activate`;
+  const fetchMode = appUrl.startsWith("https://") ? "https" : "http";
 
   const command = `# ============================================================
 #  ${cfg.businessName.toUpperCase()} — Kuunganisha kwa IP ya Umma
@@ -118,13 +121,13 @@ export async function buildDirectApiCommand(opts: {
 # 1. Washa API ya MikroTik
 /ip service enable api
 
-# 2. Ruhusu tovuti kuingia (firewall)
-/ip firewall filter add chain=input protocol=tcp dst-port=8728 action=accept comment="SaidZen API" disabled=no
+# 2. Ruhusu API kwa muda wa usajili (ifunge baada ya kuunganishwa)
+/ip firewall filter add chain=input protocol=tcp dst-port=8728 action=accept comment="SaidZen API - temporary" disabled=no
 
 # 3. Jisajili kwenye tovuti
 /tool fetch url="${callback}" http-method=post \\
   http-data="token=${opts.token}&mode=direct" \\
-  mode=http as-value output=none
+  mode=${fetchMode} as-value output=none
 
 # ============================================================
 #  KUMBUKA: Router yako inahitaji IP ya umma (public IP)

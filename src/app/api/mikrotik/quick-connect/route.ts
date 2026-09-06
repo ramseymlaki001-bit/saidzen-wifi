@@ -76,6 +76,16 @@ export async function POST(request: NextRequest) {
     };
 
     const testResult = await testConnection(testConn);
+    if (!testResult.success) {
+      return NextResponse.json(
+        {
+          error: testResult.message,
+          errorCode: testResult.errorCode,
+          simulation: testResult.simulation,
+        },
+        { status: 502 }
+      );
+    }
 
     const encryptedRouterPassword = encrypt(apiPassword);
 
