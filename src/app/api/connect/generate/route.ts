@@ -11,6 +11,7 @@ import {
 } from "@/lib/connect-command";
 import { getWireguardConfig, getAppUrl } from "@/lib/settings";
 import { RateLimiterMemory } from "rate-limiter-flexible";
+import { isIP } from "node:net";
 
 // Zuia flood ya token: 5 kwa IP kwa saa 1
 const connectLimiter = new RateLimiterMemory({
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
       location,
       phone,
       routerIp,
-      mode = "direct",
+      mode = "auto",
     } = body;
 
     // ── Rate limit ────────────────────────────────────────────
@@ -62,18 +63,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (mode !== "wireguard" && mode !== "direct") {
+    if (mode !== "wireguard" && mode !== "direct" && mode !== "auto") {
       return NextResponse.json(
         { error: "Njia ya kuunganisha si sahihi." },
         { status: 400 }
       );
     }
 
-    const cleanRouterIp = String(routerIp || "").trim();
-    if (mode === "direct" && !cleanRouterIp) {
+    const cleanRouterIp = normalizeRouterIp(routerIp);
+    if ((mode === "direct" || mode === "auto") && !cleanRouterIp) {
       return NextResponse.json(
-        { error: "IP ya router inahitajika kwa RouterOS 6 / Direct API." },
+        {
+          error:
+            "Weka Public IP ya router pekee, mfano 41.59.102.77. Usitumie http://, /24, au 192.168.x.x.",
+        },
         { status: 400 }
+      );
+    }
+
+    if ((mode === "direct" || mode === "auto") && isLocalRouterIp(cleanRouterIp)) {
+      return NextResponse.json(
+        {
+          error:
+            "192.168.x.x ni IP ya ndani haiwezi kufikiwa na website ya Vercel. Tumia Public IP ya router na port-forward ya 8728.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const appUrl = getAppUrl();
+    if (/localhost|127\.0\.0\.1|0\.0\.0\.0/i.test(appUrl)) {
+      return NextResponse.json(
+        {
+          error:
+            "Website URL haijasanidiwa. Weka NEXT_PUBLIC_APP_URL ya public, mfano https://saidzen-wifi.vercel.app.",
+        },
+        { status: 503 }
       );
     }
 
@@ -94,6 +119,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: `Username "${dashboardUsername}" tayari imetumika. Chagua nyingine.` },
         { status: 409 }
+      );
+    }
+
+    function normalizeRouterIp(value: unknown): string {
+      const raw = String(value || "").trim();
+      if (!raw) return "";
+      const withoutScheme = raw.replace(/^https?:\/\//i, "");
+      const host = withoutScheme.split("/")[0]?.split(":")[0]?.trim() || "";
+      return isIP(host) === 4 ? host : "";
+    }
+
+    function isLocalRouterIp(ip: string): boolean {
+      const parts = ip.split(".").map(Number);
+      return (
+        parts[0] === 10 ||
+        (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) ||
+        (parts[0] === 192 && parts[1] === 168) ||
+        parts[0] === 127
       );
     }
 
@@ -151,11 +194,13 @@ export async function POST(request: NextRequest) {
     const built =
       mode === "wireguard"
         ? await buildMikrotikCommand({ token, vpnIp })
-        : await buildDirectApiCommand({ token, routerIp: cleanRouterIp });
+        : await buildDirectApiCommand({
+            token,
+            routerIp: cleanRouterIp,
+            autoDetect: mode === "auto",
+          });
 
     const cfg = built.cfg;
-    const appUrl = getAppUrl();
-
     return NextResponse.json({
       success: true,
       token,

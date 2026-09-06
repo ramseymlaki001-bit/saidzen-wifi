@@ -83,6 +83,9 @@ export async function POST(request: NextRequest) {
     const token = (body.token || "").trim();
     const reportedVpnIp = (body.vpnIp || "").trim();
     const reportedRouterIp = (body.routerIp || "").trim();
+    const routerOsVersion = (body.routerOsVersion || "").trim();
+    const routerBoard = (body.routerBoard || "").trim();
+    const routerIdentity = (body.routerIdentity || "").trim();
     const routerPublicKey = (body.publicKey || "").trim();
 
     if (!token) {
@@ -254,7 +257,13 @@ export async function POST(request: NextRequest) {
       subscriptionEnd: subscriptionEnd.toISOString(),
       voucherProfiles: 5,
       nextStep:
-        "Sasa weka nenosiri la API ya router kwenye Mipangilio, kisha anza kuzalisha vocha.",
+        `Router imetambuliwa: ${routerOsVersion || "version haikutumwa"}${routerBoard ? ` (${routerBoard})` : ""}. Weka nenosiri la API kwenye Mipangilio, kisha anza kuzalisha vocha.`,
+      router: {
+        osVersion: routerOsVersion || null,
+        board: routerBoard || null,
+        identity: routerIdentity || null,
+        family: routerOsVersion.startsWith("7.") ? "routeros7" : "routeros6-or-older",
+      },
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Kosa la ndani";

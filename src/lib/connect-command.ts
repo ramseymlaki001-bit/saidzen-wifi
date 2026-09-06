@@ -108,18 +108,29 @@ export async function buildMikrotikCommand(opts: {
 export async function buildDirectApiCommand(opts: {
   token: string;
   routerIp: string;
+  autoDetect?: boolean;
 }): Promise<{ command: string; cfg: Awaited<ReturnType<typeof getWireguardConfig>> }> {
   const cfg = await getWireguardConfig();
   const appUrl = getAppUrl();
   const callback = `${appUrl}/api/connect/activate`;
   const fetchMode = appUrl.startsWith("https://") ? "https" : "http";
 
+  const detection = opts.autoDetect
+    ? `:local rosVersion [/system resource get version]
+:local rosBoard [/system resource get board-name]
+:local rosIdentity [/system identity get name]`
+    : "";
+  const payload = opts.autoDetect
+    ? `token=${opts.token}&mode=auto&routerIp=${opts.routerIp}&routerOsVersion=$rosVersion&routerBoard=$rosBoard&routerIdentity=$rosIdentity`
+    : `token=${opts.token}&mode=direct&routerIp=${opts.routerIp}`;
+
   const command = `# ============================================================
 #  ${cfg.businessName.toUpperCase()} — Kuunganisha kwa IP ya Umma
 #  NAKILI MISTARI YOTE, kisha bandika kwenye WinBox → New Terminal
 # ============================================================
 
-# 1. Washa API ya MikroTik RouterOS 6
+# 1. Tambua aina ya MikroTik na washa API
+${detection}
 /ip service set api disabled=no port=8728
 
 # 2. Ruhusu API kwa muda wa usajili (ifunge baada ya kuunganishwa)
@@ -127,7 +138,7 @@ export async function buildDirectApiCommand(opts: {
 
 # 3. Jisajili kwenye tovuti
 /tool fetch url="${callback}" http-method=post \\
-  http-data="token=${opts.token}&mode=direct&routerIp=${opts.routerIp}" \\
+  http-data="${payload}" \\
   mode=${fetchMode} as-value output=user
 
 # ============================================================

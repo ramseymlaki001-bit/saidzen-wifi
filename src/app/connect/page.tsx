@@ -30,7 +30,7 @@ export default function ConnectPage() {
     phone: "",
     location: "",
     routerIp: "",
-    mode: "direct",
+    mode: "auto",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -212,11 +212,11 @@ export default function ConnectPage() {
                   required={form.mode === "direct"}
                   value={form.routerIp}
                   onChange={(e) => setForm({ ...form, routerIp: e.target.value })}
-                  placeholder=" mfano 41.59.102.77"
+                  placeholder="mfano 41.59.102.77"
                   className="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm font-mono outline-none focus:border-emerald-500"
                 />
                 <p className="text-[11px] text-slate-500 mt-1">
-                  Tumia Public IP ya router, si 192.168.x.x.
+                  Tumia Public IP bila <code>/24</code> au <code>http://</code>.
                 </p>
               </div>
 
@@ -262,6 +262,26 @@ export default function ConnectPage() {
               <label className="block text-xs font-bold text-slate-300 mb-2">
                 Njia ya Kuunganisha
               </label>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, mode: "auto" })}
+                className={`w-full mb-2 p-4 rounded-2xl border-2 text-left transition-all ${
+                  form.mode === "auto"
+                    ? "border-emerald-500 bg-emerald-500/10"
+                    : "border-slate-700 hover:border-slate-600"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">✨</span>
+                  <span className="font-bold text-sm">Tambua Automatic</span>
+                  <span className="ml-auto text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-bold">
+                    CHAGUO LA KWANZA
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 mt-1">
+                  Router itatuma version na model yake; mfumo utachagua njia sahihi.
+                </p>
+              </button>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
                   type="button"
