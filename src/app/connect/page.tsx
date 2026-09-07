@@ -126,27 +126,52 @@ export default function ConnectPage() {
         {/* Intro */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
-            ⚡ HATUA MOJA TU
+            ⚡ MCHAKATO RAHISI WA HATUA 3
           </div>
           <h1 className="text-3xl sm:text-4xl font-black">
-            Unganisha Router Yako kwa{" "}
+            Unganisha MikroTik Yako kwa{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-brand-400">
               Command Moja
             </span>
           </h1>
           <p className="text-slate-400 text-sm max-w-2xl mx-auto">
-            Jaza fomu hii fupi, nakili command unayopewa, kisha uibandike
-            kwenye <strong>WinBox → New Terminal</strong>. Router yako
-            itajisajili yenyewe — hakuna haja ya kujaza fomu ndefu.
+            Huhitaji kujua code. Fuata maelekezo hapa chini, jaza taarifa zako,
+            kisha bandika command tutakayokupa kwenye <strong>WinBox → New
+            Terminal</strong>. Tutakuonyesha hali ya router yako moja kwa moja.
           </p>
         </div>
+
+        <details open className="group bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
+          <summary className="cursor-pointer list-none px-5 py-4 flex items-center justify-between gap-3">
+            <span className="font-bold text-sm">📖 Anza hapa: maandalizi kabla ya kuunganisha</span>
+            <span className="text-slate-500 transition-transform group-open:rotate-180">⌄</span>
+          </summary>
+          <div className="border-t border-slate-800 px-5 py-5 grid gap-3 sm:grid-cols-2">
+            {[
+              ["1", "Tengeneza backup", "Fungua WinBox na uingie kwenye MikroTik. Nenda Files, kisha backup configuration yako kabla ya kubadilisha chochote."],
+              ["2", "Hakikisha una internet", "Router lazima iwe imeunganishwa na internet. Usibandike command ukiwa umeondoka kwenye WinBox."],
+              ["3", "Tumia mtumiaji mwenye ruhusa", "Tumia account yenye full/administration permission. Usifute account yako ya zamani."],
+              ["4", "Usibadilishe command", "Nakili command yote kama ilivyo. Usibadilishe token, IP, public-key, au alama za nukuu."],
+            ].map(([number, title, description]) => (
+              <div key={number} className="flex gap-3 rounded-2xl bg-slate-950/70 border border-slate-800 p-4">
+                <span className="w-7 h-7 shrink-0 rounded-lg bg-emerald-500 text-slate-950 font-black flex items-center justify-center text-sm">
+                  {number}
+                </span>
+                <div>
+                  <div className="font-bold text-sm text-slate-200">{title}</div>
+                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">{description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </details>
 
         {/* Jinsi inavyofanya kazi */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[
-            { n: "1", t: "Jaza Fomu", d: "Jina la biashara, username, nenosiri" },
-            { n: "2", t: "Nakili Command", d: "Bonyeza kitufe cha kunakili" },
-            { n: "3", t: "Bandika WinBox", d: "New Terminal → Ctrl+V → Enter" },
+            { n: "1", t: "Jaza taarifa", d: "Jina la biashara, username na nenosiri la dashboard" },
+            { n: "2", t: "Pata command", d: "Bonyeza Nipe Command ya Kuunganisha" },
+            { n: "3", t: "Bandika WinBox", d: "New Terminal → Ctrl+V → Enter, kisha subiri uthibitisho" },
           ].map((s) => (
             <div
               key={s.n}
@@ -167,6 +192,11 @@ export default function ConnectPage() {
             onSubmit={handleGenerate}
             className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-5"
           >
+            <div className="border-b border-slate-800 pb-4">
+              <div className="text-emerald-400 text-[11px] font-black uppercase tracking-wide">Hatua ya 1</div>
+              <h2 className="font-black text-lg mt-1">Weka taarifa za biashara na router</h2>
+              <p className="text-xs text-slate-400 mt-1">Taarifa hizi zinatumika kutengeneza akaunti yako na command salama ya usajili.</p>
+            </div>
             {error && (
               <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 px-4 py-3 rounded-2xl text-xs">
                 ⚠️ {error}
@@ -216,7 +246,9 @@ export default function ConnectPage() {
                   className="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm font-mono outline-none focus:border-emerald-500"
                 />
                 <p className="text-[11px] text-slate-500 mt-1">
-                  Weka IP ya router bila <code>/24</code> au <code>http://</code>.
+                  Weka Public IP ya router bila <code>/24</code> au <code>http://</code>.
+                  Unaweza kuiona kwa kuingia WinBox, kisha IP → Addresses. Kama huna
+                  Public IP, wasiliana nasi ili tukupe njia ya VPN.
                 </p>
               </div>
 
@@ -466,19 +498,36 @@ NEXT_PUBLIC_APP_URL=http://IP_YA_SEVA:3000`}
             {/* Maelekezo */}
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
               <h3 className="font-bold text-sm mb-3">
-                📖 Jinsi ya Kuitumia
+                📖 Hatua ya 3: bandika command kwenye MikroTik
               </h3>
               <ol className="space-y-2">
                 {result.instructions.map((step, i) => (
                   <li key={i} className="text-xs text-slate-400 flex gap-2">
-                    <span className="text-emerald-400 font-bold">
-                      {step.split(".")[0]}.
-                    </span>
-                    <span>{step.split(".").slice(1).join(".").trim()}</span>
+                    <span className="text-emerald-400 font-bold">{i + 1}.</span>
+                    <span>{step}</span>
                   </li>
                 ))}
               </ol>
+              <div className="mt-4 rounded-xl bg-amber-500/10 border border-amber-500/20 p-3 text-xs text-amber-300 leading-relaxed">
+                <strong>Usifunge WinBox bado.</strong> Baada ya kubonyeza Enter,
+                subiri sekunde 10-30 hadi ujumbe wa connection uonekane hapa juu.
+                Usibandike command mara mbili.
+              </div>
             </div>
+
+            <details className="group bg-slate-900 border border-slate-800 rounded-2xl p-5">
+              <summary className="cursor-pointer list-none flex items-center justify-between gap-3 text-sm font-bold">
+                🛠️ Haijaungana? Fuata ukaguzi huu
+                <span className="text-slate-500 transition-transform group-open:rotate-180">⌄</span>
+              </summary>
+              <div className="mt-4 space-y-2 text-xs text-slate-400 leading-relaxed">
+                <p>• Hakikisha umebandika kwenye <strong className="text-slate-200">New Terminal</strong>, si kwenye sehemu ya search ya WinBox.</p>
+                <p>• Hakikisha router ina internet na IP uliyoandika ni Public IP sahihi.</p>
+                <p>• Ukiona error ya permission, ingia kwa account yenye ruhusa ya administrator.</p>
+                <p>• Ukiona timeout, subiri dakika moja kisha refresh ukurasa.</p>
+                <p>• Bado haifanyi kazi? Piga simu <a href="tel:0777378300" className="text-emerald-400 font-bold">0777 378 300</a> na tuma screenshot ya ujumbe wa error.</p>
+              </div>
+            </details>
 
             {/* Taarifa */}
             {result.assignedVpnIp && (
