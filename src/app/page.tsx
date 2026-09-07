@@ -30,6 +30,10 @@ const DEFAULT_PROFILES: VoucherProfile[] = [
   { id: "5", name: "Wiki 1", duration: "Siku 7", price: 8000, speed: "5 Mbps" },
 ];
 
+const SUPPORT_PHONE = "0777378300";
+const SUPPORT_WHATSAPP_URL =
+  "https://wa.me/255777378300?text=Habari%20SaidZen%20WiFi%2C%20nahitaji%20msaada.";
+
 export default function HomePage() {
   const router = useRouter();
 
@@ -352,6 +356,23 @@ export default function HomePage() {
               className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition-colors border border-slate-700"
             >
               📖 Jinsi Inavyofanya Kazi
+            </a>
+          </div>
+
+          <div className="mx-auto mt-5 flex max-w-xl flex-col items-center justify-between gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-left sm:flex-row">
+            <div>
+              <p className="text-sm font-bold text-white">Unahitaji msaada wa haraka?</p>
+              <p className="text-xs text-slate-400">Wasiliana nasi moja kwa moja bila kujaza fomu ndefu.</p>
+            </div>
+            <a
+              href={SUPPORT_WHATSAPP_URL}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Wasiliana na SaidZen WiFi kupitia WhatsApp"
+              className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 text-xs font-black text-slate-950 transition-colors hover:bg-[#20bd5a]"
+            >
+              <span aria-hidden="true">💬</span>
+              WhatsApp sasa
             </a>
           </div>
         </div>
@@ -758,6 +779,17 @@ export default function HomePage() {
           </div>
 
           <div className="flex items-center gap-4 text-slate-400">
+            <a
+              href={SUPPORT_WHATSAPP_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="text-emerald-400 transition-colors hover:text-emerald-300"
+            >
+              WhatsApp
+            </a>
+            <a href={`tel:${SUPPORT_PHONE}`} className="transition-colors hover:text-emerald-400">
+              {SUPPORT_PHONE}
+            </a>
             <button
               onClick={() => setShowLoginModal(true)}
               className="hover:text-emerald-400 transition-colors"
@@ -776,6 +808,16 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
+
+      <a
+        href={SUPPORT_WHATSAPP_URL}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Fungua WhatsApp ya SaidZen WiFi"
+        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-2xl shadow-xl shadow-emerald-950/40 transition-transform hover:scale-105 sm:bottom-7 sm:right-7"
+      >
+        <span aria-hidden="true">💬</span>
+      </a>
 
       {/* ========================================================
           MODAL 1: QUICK CONNECT ROUTER SETUP (NO EMAIL REQUIRED)

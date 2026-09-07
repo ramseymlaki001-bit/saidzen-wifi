@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { authFetch } from "@/lib/client-auth";
+import Link from "next/link";
 
 interface Client {
   id: number;
@@ -103,7 +104,7 @@ export default function SupportPage() {
       const data = await res.json();
       if (res.ok) {
         setBlockSuccess("✅ Huduma imezimwa kikamilifu");
-        loadClients();
+        await loadClients();
       } else {
         setBlockSuccess(`❌ ${data.error}`);
       }
@@ -120,7 +121,7 @@ export default function SupportPage() {
       body: JSON.stringify({ action: "activate" }),
     });
     if (res.ok) {
-      loadClients();
+      await loadClients();
       setBlockSuccess("✅ Huduma imewashwa tena");
     }
   }
@@ -145,7 +146,7 @@ export default function SupportPage() {
   return (
     <div className="space-y-6">
       {/* Support Header */}
-      <div className="bg-gradient-to-r from-brand-700 to-brand-900 rounded-2xl p-6 text-white">
+      <div className="bg-linear-to-r from-brand-700 to-brand-900 rounded-2xl p-6 text-white">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl font-black">🎧 Msaada wa Wateja</h2>
@@ -153,7 +154,21 @@ export default function SupportPage() {
               Angalia router za wateja online/offline, zuia huduma, au wasaidie kimtandao
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap justify-end">
+            <Link
+              href="/connect"
+              className="px-5 py-3 bg-white text-brand-800 hover:bg-brand-50 rounded-xl text-sm font-bold transition-colors flex items-center gap-2 shadow-sm"
+            >
+              ⚡ Unganisha MikroTik
+            </Link>
+            <a
+              href="https://wa.me/255777378300?text=Habari%20SaidZen%20WiFi%2C%20nahitaji%20msaada."
+              target="_blank"
+              rel="noreferrer"
+              className="px-5 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 rounded-xl text-sm font-bold transition-colors flex items-center gap-2"
+            >
+              💬 WhatsApp
+            </a>
             <a
               href="tel:0777378300"
               className="px-5 py-3 bg-white/20 hover:bg-white/30 rounded-xl text-sm font-bold border border-white/30 transition-colors flex items-center gap-2"

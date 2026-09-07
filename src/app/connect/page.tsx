@@ -258,31 +258,36 @@ export default function ConnectPage() {
             </div>
 
             {/* Njia ya muunganisho */}
-            <div>
-              <label className="block text-xs font-bold text-slate-300 mb-2">
-                Njia ya Kuunganisha
-              </label>
-              <button
-                type="button"
-                onClick={() => setForm({ ...form, mode: "auto" })}
-                className={`w-full mb-2 p-4 rounded-2xl border-2 text-left transition-all ${
-                  form.mode === "auto"
-                    ? "border-emerald-500 bg-emerald-500/10"
-                    : "border-slate-700 hover:border-slate-600"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">✨</span>
-                  <span className="font-bold text-sm">Tambua Automatic</span>
-                  <span className="ml-auto text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-bold">
-                    CHAGUO LA KWANZA
-                  </span>
+            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4">
+              <div className="flex items-start gap-3">
+                <span className="text-xl">✨</span>
+                <div>
+                  <div className="font-bold text-sm text-emerald-300">
+                    Muunganisho wa Automatic
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Huhitaji kuchagua RouterOS au WireGuard. Bandika command
+                    moja tu kwenye WinBox na mfumo utakamilisha usajili.
+                  </p>
                 </div>
-                <p className="text-xs text-slate-400 mt-1">
-                  Router itatuma version na model yake; mfumo utachagua njia sahihi.
-                </p>
-              </button>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              </div>
+              {form.mode !== "auto" && (
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, mode: "auto" })}
+                  className="mt-3 text-[11px] font-bold text-emerald-400 hover:text-emerald-300"
+                >
+                  ↩️ Rudi kwenye automatic
+                </button>
+              )}
+            </div>
+
+            <details className="group">
+              <summary className="cursor-pointer list-none text-[11px] font-bold text-slate-500 hover:text-slate-300">
+                ⚙️ Mipangilio ya kitaalamu (si lazima)
+                <span className="float-right transition-transform group-open:rotate-180">⌄</span>
+              </summary>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
                 <button
                   type="button"
                   onClick={() => setForm({ ...form, mode: "wireguard" })}
@@ -295,16 +300,11 @@ export default function ConnectPage() {
                   <div className="flex items-center gap-2">
                     <span className="text-lg">🔒</span>
                     <span className="font-bold text-sm">RouterOS 7 + WireGuard</span>
-                    <span className="ml-auto text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-bold">
-                      INAPENDEKEZWA
-                    </span>
                   </div>
                   <p className="text-xs text-slate-400 mt-1">
-                    Salama zaidi, lakini inahitaji RouterOS 7+ na usanidi wa
-                    WireGuard kwenye seva.
+                    Kwa muunganisho salama kupitia VPN.
                   </p>
                 </button>
-
                 <button
                   type="button"
                   onClick={() => setForm({ ...form, mode: "direct" })}
@@ -316,15 +316,14 @@ export default function ConnectPage() {
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-lg">🌐</span>
-                    <span className="font-bold text-sm">RouterOS 6 / Direct API</span>
+                    <span className="font-bold text-sm">Direct API</span>
                   </div>
                   <p className="text-xs text-slate-400 mt-1">
-                    IP ya ndani inaruhusiwa kwa usajili. Kwa dashboard ya Vercel,
-                    tumia Public IP/port-forward au VPN ili vocha zitumike.
+                    Kwa IP ya public au port-forward ya API.
                   </p>
                 </button>
               </div>
-            </div>
+            </details>
 
             <button
               type="submit"
