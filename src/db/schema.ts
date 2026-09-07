@@ -124,7 +124,7 @@ export const sessions = mysqlTable("sessions", {
 export const auditLogs = mysqlTable("audit_logs", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("user_id").references(() => users.id),
-  action: mysqlEnum("action", ["login", "logout", "generate_voucher", "delete_voucher", "toggle_router", "record_payment", "change_password", "create_client", "update_client", "failed_login", "password_reset_request", "password_reset"]).notNull(),
+  action: mysqlEnum("action", ["login", "logout", "generate_voucher", "delete_voucher", "delete_client", "toggle_router", "record_payment", "change_password", "create_client", "update_client", "failed_login", "password_reset_request", "password_reset"]).notNull(),
   details: text("details"),
   ipAddress: varchar("ip_address", { length: 45 }),
   userAgent: text("user_agent"),

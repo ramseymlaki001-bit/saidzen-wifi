@@ -120,6 +120,22 @@ export default function ClientsPage() {
     if (res.ok) {
       loadClients();
     }
+
+  }
+
+  async function deleteClient(client: Client) {
+    const confirmed = window.confirm(
+      `Futa kabisa "${client.businessName}"? Vocha, malipo, oda na akaunti yake vitaondolewa. Hatua hii haiwezi kutenduliwa.`
+    );
+    if (!confirmed) return;
+
+    const res = await authFetch(`/api/clients/${client.id}`, { method: "DELETE" });
+    const data = await res.json();
+    if (res.ok) {
+      await loadClients();
+    } else {
+      alert(data.error || "Imeshindikana kufuta mteja");
+    }
   }
 
   // ── KUREKEBISHA API YA ROUTER YA MTEJA (admin) ──────────────
@@ -560,6 +576,13 @@ export default function ClientsPage() {
                           <span>🌐 Portal</span>
                           <span className="text-[10px]">↗</span>
                         </Link>
+                        <button
+                          onClick={() => void deleteClient(c)}
+                          title="Futa mteja na taarifa zake zote"
+                          className="px-2.5 py-1.5 rounded-xl font-bold text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
+                        >
+                          🗑️ Futa
+                        </button>
                       </div>
                     </td>
                   </tr>

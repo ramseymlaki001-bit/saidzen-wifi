@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { clients, users } from "@/db/schema";
+import {
+  auditLogs,
+  clients,
+  connectionTokens,
+  mpesaConfig,
+  passwordResetTokens,
+  payments,
+  portalOrders,
+  sessions,
+  users,
+  vouchers,
+  voucherProfiles,
+} from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { getSession, hashPassword } from "@/lib/auth";
 import { encrypt } from "@/lib/encryption";
@@ -175,6 +187,87 @@ export async function GET(
     return NextResponse.json({
       ...row,
       hasRouterPassword: true,
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Kosa la ndani";
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
+}
+
+/** Kufuta mteja pamoja na taarifa zake zote zinazomtegemea (admin pekee). */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getSession();
+    if (!session || session.role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const clientId = Number.parseInt(id, 10);
+    if (!Number.isInteger(clientId)) {
+      return NextResponse.json({ error: "Kitambulisho cha mteja si sahihi" }, { status: 400 });
+    }
+
+    const [client] = await db
+      .select({
+        id: clients.id,
+        userId: clients.userId,
+        businessName: clients.businessName,
+      })
+      .from(clients)
+      .where(eq(clients.id, clientId))
+      .limit(1);
+
+    if (!client) {
+      return NextResponse.json({ error: "Mteja hajapatikana" }, { status: 404 });
+    }
+
+    await db.transaction(async (tx) => {
+      // Futa watoto kwanza kwa sababu foreign keys za database hazina cascade.
+      await tx.delete(portalOrders).where(eq(portalOrders.clientId, clientId));
+      await tx.delete(vouchers).where(eq(vouchers.clientId, clientId));
+      await tx.delete(voucherProfiles).where(eq(voucherProfiles.clientId, clientId));
+      await tx.delete(payments).where(eq(payments.clientId, clientId));
+      await tx.delete(mpesaConfig).where(eq(mpesaConfig.clientId, clientId));
+      await tx
+        .update(connectionTokens)
+        .set({ clientId: null })
+        .where(eq(connectionTokens.clientId, clientId));
+      await tx.delete(clients).where(eq(clients.id, clientId));
+
+      const remainingClients = await tx
+        .select({ id: clients.id })
+        .from(clients)
+        .where(eq(clients.userId, client.userId))
+        .limit(1);
+
+      if (remainingClients.length === 0) {
+        await tx.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, client.userId));
+        await tx.delete(sessions).where(eq(sessions.userId, client.userId));
+        await tx
+          .update(connectionTokens)
+          .set({ createdBy: null })
+          .where(eq(connectionTokens.createdBy, client.userId));
+        await tx
+          .update(auditLogs)
+          .set({ userId: null })
+          .where(eq(auditLogs.userId, client.userId));
+        await tx.delete(users).where(eq(users.id, client.userId));
+      }
+    });
+
+    await logAudit({
+      userId: session.userId,
+      action: "delete_client",
+      details: `Mteja "${client.businessName}" amefutwa pamoja na taarifa zake zote`,
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `Mteja "${client.businessName}" amefutwa`,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Kosa la ndani";
