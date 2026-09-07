@@ -56,6 +56,17 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+    if (
+      /^\d+\.\d+\.\d+\.\d+$/.test(h) &&
+      Number(h.split(".")[3]) === 0
+    ) {
+      return NextResponse.json(
+        {
+          error: `${h} ni network address, si IP ya router. Tumia IP halisi ya router, kwa kawaida 192.168.88.1.`,
+        },
+        { status: 400 }
+      );
+    }
 
     const result = await testConnection({
       host: h,

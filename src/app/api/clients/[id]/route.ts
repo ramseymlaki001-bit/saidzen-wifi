@@ -60,6 +60,20 @@ export async function PATCH(
     // ── 3. Andaa uwanja wa kusasisha ──────────────────────────
     const updateData: Record<string, unknown> = {};
 
+    if (typeof body.routerIp === "string" && body.routerIp.trim()) {
+      const routerIp = body.routerIp.trim();
+      const lastOctet = routerIp.match(/^\d+\.\d+\.\d+\.\d+$/)?.[0]
+        ?.split(".")[3];
+      if (lastOctet === "0" || lastOctet === "255") {
+        return NextResponse.json(
+          {
+            error: `${routerIp} ni network/broadcast address, si IP ya router. Tumia IP halisi ya router, kwa kawaida 192.168.88.1.`,
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     // Taarifa za biashara
     if (typeof body.businessName === "string" && body.businessName.trim())
       updateData.businessName = body.businessName.trim();

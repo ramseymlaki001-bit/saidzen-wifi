@@ -8,6 +8,21 @@ import { encrypt } from "@/lib/encryption";
 import { allocatePortalSlug } from "@/lib/portal-slug";
 import { insertReturning } from "@/lib/db-mysql";
 import { logAudit } from "@/lib/audit";
+import { isIP } from "node:net";
+
+function validateRouterIp(value: unknown): string | null {
+  const host = String(value || "").trim();
+  if (!host || isIP(host) !== 4) {
+    return "Weka IPv4 ya router iliyo sahihi, mfano 192.168.88.1.";
+  }
+
+  const octets = host.split(".").map(Number);
+  if (octets[3] === 0 || octets[3] === 255) {
+    return `${host} ni network/broadcast address, si IP ya router. Tumia IP halisi ya router, kwa kawaida 192.168.88.1.`;
+  }
+
+  return null;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,6 +48,11 @@ export async function POST(request: NextRequest) {
         { error: "IP ya Router na Nenosiri la Router vinahitajika" },
         { status: 400 }
       );
+    }
+
+    const routerIpError = validateRouterIp(routerIp);
+    if (routerIpError) {
+      return NextResponse.json({ error: routerIpError }, { status: 400 });
     }
 
     // For NEW customers (not logged in), username+password are required
