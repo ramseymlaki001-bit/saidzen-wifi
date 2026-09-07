@@ -4,6 +4,7 @@ import { clients } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { getSession } from "@/lib/auth";
 import { testConnection, getHotspotUsers } from "@/lib/mikrotik";
+import { isPrivateIPv4 } from "@/lib/network";
 
 /**
  * Admin kupima muunganisho na router ya mteja
@@ -41,6 +42,8 @@ export async function POST(
       port: client.routerPort,
     };
 
+    const usingPrivateLanIp = !client.vpnIp && isPrivateIPv4(client.routerIp);
+
     const startTime = Date.now();
     const testResult = await testConnection(conn);
     const latency = Date.now() - startTime;
@@ -69,6 +72,10 @@ export async function POST(
       vpnIp: client.vpnIp,
       status: client.status,
       subscriptionEnd: client.subscriptionEnd,
+      networkHint:
+        usingPrivateLanIp && !testResult.success
+          ? "Router ina IP ya ndani bila VPN IP. Website iliyo kwenye VPS/Vercel haiwezi kufikia IP hii moja kwa moja. Sanidi WireGuard, kisha tumia IP ya VPN ya router (mfano 10.8.0.2)."
+          : null,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Kosa la ndani";

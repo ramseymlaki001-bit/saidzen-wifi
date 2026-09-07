@@ -101,6 +101,19 @@ export default function HomePage() {
     setTestStatus("testing");
     setTestMessage("Inapima mawasiliano na MikroTik API...");
 
+    const host = setupForm.routerIp.trim();
+    const privateIp =
+      /^(10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})$/.test(
+        host
+      );
+    if (privateIp) {
+      setTestStatus("failed");
+      setTestMessage(
+        "IP hii ni ya ndani ya LAN. Ikiwa website iko VPS/Vercel, tumia WireGuard IP ya router, mfano 10.8.0.2, au tumia public IP yenye port-forward salama."
+      );
+      return;
+    }
+
     try {
       const res = await fetch("/api/mikrotik/test", {
         method: "POST",
