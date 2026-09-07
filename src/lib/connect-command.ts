@@ -12,6 +12,41 @@ export { getAppUrl };
  * mteja anaiweka kwenye WinBox → New Terminal.
  */
 
+function buildHotspotSetupCommand(appUrl: string): string {
+  const appHost = new URL(appUrl).hostname;
+  return `# 3. Sanidi Hotspot ili mteja asitumie internet bure
+:local hsInterface "";
+:foreach bridgeId in=[/interface bridge find] do={ :set hsInterface [/interface bridge get $bridgeId name] };
+:if ([:len $hsInterface] = 0) do={ :set hsInterface "bridge" };
+
+:if ([:len [/ip hotspot profile find name="saidzen-profile"]] = 0) do={
+  /ip hotspot profile add name=saidzen-profile login-by=http-chap,http-pap
+};
+:if ([:len [/ip hotspot user profile find name="Saa_1"]] = 0) do={
+  /ip hotspot user profile add name=Saa_1 rate-limit=2M/2M session-timeout=1h
+};
+:if ([:len [/ip hotspot user profile find name="Saa_2"]] = 0) do={
+  /ip hotspot user profile add name=Saa_2 rate-limit=3M/3M session-timeout=2h
+};
+:if ([:len [/ip hotspot user profile find name="Saa_6"]] = 0) do={
+  /ip hotspot user profile add name=Saa_6 rate-limit=4M/4M session-timeout=6h
+};
+:if ([:len [/ip hotspot user profile find name="Saa_24"]] = 0) do={
+  /ip hotspot user profile add name=Saa_24 rate-limit=5M/5M session-timeout=24h
+};
+:if ([:len [/ip hotspot user profile find name="Wiki_1"]] = 0) do={
+  /ip hotspot user profile add name=Wiki_1 rate-limit=5M/5M session-timeout=7d
+};
+:if ([:len [/ip hotspot find name="saidzen-hotspot"]] = 0) do={
+  /ip hotspot add name=saidzen-hotspot interface=$hsInterface profile=saidzen-profile address-pool=none disabled=no
+} else={
+  /ip hotspot enable [find name="saidzen-hotspot"]
+};
+:if ([:len [/ip hotspot walled-garden find dst-host="${appHost}"]] = 0) do={
+  /ip hotspot walled-garden add dst-host="${appHost}" action=allow
+};`;
+}
+
 /**
  * Kutafuta IP ya VPN ambayo bado haijatumiwa.
  * Inaangalia: jedwali la clients (vpn_ip) na token zinazosubiri.
@@ -89,7 +124,9 @@ export async function buildMikrotikCommand(opts: {
 # 4. Washa API ya MikroTik kupitia VPN pekee
 /ip service set api disabled=no port=8728 address=${cfg.subnetPrefix}.0/24
 
-# 5. Jisajili kwenye tovuti (inajifanya yenyewe)
+${buildHotspotSetupCommand(appUrl)}
+
+# 6. Jisajili kwenye tovuti (inajifanya yenyewe)
 /tool fetch url="${callback}" http-method=post \\
   http-data="token=${token}&vpnIp=${vpnIp}" \\
   mode=${fetchMode} as-value output=user
@@ -136,7 +173,9 @@ ${detection}
 # 2. Ruhusu API kwa muda wa usajili (ifunge baada ya kuunganishwa)
 /ip firewall filter add chain=input protocol=tcp dst-port=8728 action=accept comment="SaidZen API - temporary" disabled=no
 
-# 3. Jisajili kwenye tovuti
+${buildHotspotSetupCommand(appUrl)}
+
+# 4. Jisajili kwenye tovuti
 /tool fetch url="${callback}" http-method=post \\
   http-data="${payload}" \\
   mode=${fetchMode} as-value output=user

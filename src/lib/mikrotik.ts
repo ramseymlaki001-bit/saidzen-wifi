@@ -353,6 +353,110 @@ export async function enableHotspot(
 }
 
 /**
+ * Kuandaa Hotspot ya router iliyokwisha sajiliwa.
+ * Hii inatumika pale router iliunganishwa kabla ya command mpya yenye setup.
+ */
+export async function configureHotspot(
+  conn: MikroTikConnection,
+  portalHost?: string
+): Promise<RouterResult> {
+  if (isSimulation()) {
+    return {
+      success: true,
+      simulation: true,
+      message: `[SIMULATION] Hotspot imeandaliwa kwenye ${conn.host}`,
+    };
+  }
+
+  const res = await connectToRouter(conn);
+  if (res.error !== undefined) {
+    const ex = explainError(res.error, conn.host, conn.port);
+    return { success: false, simulation: false, message: ex.message, errorCode: ex.code };
+  }
+
+  try {
+    const bridges = await res.client.write("/interface/bridge/print");
+    const bridge = bridges?.[0]?.name;
+    if (!bridge) {
+      throw new Error("Router haina bridge ya LAN. Tengeneza bridge ya WiFi kwanza.");
+    }
+
+    const profiles = [
+      ["Saa_1", "2M/2M", "1h"],
+      ["Saa_2", "3M/3M", "2h"],
+      ["Saa_6", "4M/4M", "6h"],
+      ["Saa_24", "5M/5M", "24h"],
+      ["Wiki_1", "5M/5M", "7d"],
+    ];
+
+    const userProfiles = await res.client.write("/ip/hotspot/user/profile/print");
+    const existingProfiles = new Set(
+      (userProfiles || []).map((profile: Record<string, string>) => profile.name)
+    );
+    for (const [name, rateLimit, timeout] of profiles) {
+      if (!existingProfiles.has(name)) {
+        await res.client.write("/ip/hotspot/user/profile/add", [
+          `=name=${name}`,
+          `=rate-limit=${rateLimit}`,
+          `=session-timeout=${timeout}`,
+        ]);
+      }
+    }
+
+    const hotspotProfiles = await res.client.write("/ip/hotspot/profile/print");
+    const hasSaidzenProfile = (hotspotProfiles || []).some(
+      (profile: Record<string, string>) => profile.name === "saidzen-profile"
+    );
+    if (!hasSaidzenProfile) {
+      await res.client.write("/ip/hotspot/profile/add", [
+        "=name=saidzen-profile",
+        "=login-by=http-chap,http-pap",
+      ]);
+    }
+
+    const servers = await res.client.write("/ip/hotspot/print");
+    const saidzenServer = (servers || []).find(
+      (server: Record<string, string>) => server.name === "saidzen-hotspot"
+    );
+    if (saidzenServer?.[".id"]) {
+      await res.client.write("/ip/hotspot/enable", [`=.id=${saidzenServer[".id"]}`]);
+    } else if (!(servers || []).some((server: Record<string, string>) => server.interface === bridge)) {
+      await res.client.write("/ip/hotspot/add", [
+        "=name=saidzen-hotspot",
+        `=interface=${bridge}`,
+        "=profile=saidzen-profile",
+        "=address-pool=none",
+        "=disabled=no",
+      ]);
+    }
+
+    if (portalHost) {
+      const gardens = await res.client.write("/ip/hotspot/walled-garden/print");
+      const hasPortal = (gardens || []).some(
+        (garden: Record<string, string>) => garden["dst-host"] === portalHost
+      );
+      if (!hasPortal) {
+        await res.client.write("/ip/hotspot/walled-garden/add", [
+          `=dst-host=${portalHost}`,
+          "=action=allow",
+        ]);
+      }
+    }
+
+    return {
+      success: true,
+      simulation: false,
+      message: `Hotspot imeandaliwa kwenye ${conn.host}. Mteja sasa ataona login kabla ya internet.`,
+    };
+  } catch (err) {
+    const ex = explainError(err, conn.host, conn.port);
+    return { success: false, simulation: false, message: ex.message, errorCode: ex.code };
+  } finally {
+    safeClose(res.client);
+  }
+}
+
+/**
  * Kupata orodha ya watumiaji wanaotumia hotspot sasa hivi.
  * Router ikishindwa → orodha TUPU (si data ya uongo).
  */

@@ -47,6 +47,7 @@ export default function SupportPage() {
   const [blockReason, setBlockReason] = useState("");
   const [blocking, setBlocking] = useState(false);
   const [blockSuccess, setBlockSuccess] = useState("");
+  const [configuringHotspot, setConfiguringHotspot] = useState<number | null>(null);
 
   const loadClients = useCallback(async () => {
     try {
@@ -123,6 +124,26 @@ export default function SupportPage() {
     if (res.ok) {
       await loadClients();
       setBlockSuccess("✅ Huduma imewashwa tena");
+    }
+
+  }
+
+  async function configureClientHotspot(clientId: number) {
+    setConfiguringHotspot(clientId);
+    try {
+      const res = await authFetch(`/api/clients/${clientId}/configure-hotspot`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      setBlockSuccess(
+        res.ok
+          ? `✅ ${data.message}`
+          : `❌ ${data.error || "Imeshindikana kuandaa Hotspot"}`
+      );
+    } catch {
+      setBlockSuccess("❌ Imeshindikana kuwasiliana na router");
+    } finally {
+      setConfiguringHotspot(null);
     }
   }
 
@@ -263,6 +284,13 @@ export default function SupportPage() {
                     className="px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-lg text-xs font-bold border border-brand-200 transition-colors"
                   >
                     🔍 Angalia
+                  </button>
+                  <button
+                    onClick={() => configureClientHotspot(c.id)}
+                    disabled={configuringHotspot === c.id}
+                    className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg text-xs font-bold border border-purple-200 transition-colors disabled:opacity-50"
+                  >
+                    {configuringHotspot === c.id ? "Inaandaa..." : "🔒 Sanidi Hotspot"}
                   </button>
 
                   {c.status === "active" ? (

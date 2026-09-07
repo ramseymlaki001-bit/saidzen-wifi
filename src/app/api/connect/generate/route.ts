@@ -202,6 +202,7 @@ export async function POST(request: NextRequest) {
         "Fungua WinBox, ingia kwenye router yako",
         "Bonyeza New Terminal",
         "Bandika (Ctrl+V) kisha bonyeza Enter",
+        "Subiri command imalize: itawasha Hotspot, kuzuia internet bila login, na kutengeneza profiles za vocha",
         "Rudi hapa — hali itabadilika kuwa IMEUNGANISHWA chini ya sekunde 10",
       ],
     });
