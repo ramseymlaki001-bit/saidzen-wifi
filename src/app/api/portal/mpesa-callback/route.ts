@@ -11,6 +11,7 @@ import { eq } from "drizzle-orm";
 import { generateVouchers } from "@/lib/mikrotik";
 import { logAudit } from "@/lib/audit";
 import { insertReturning } from "@/lib/db-mysql";
+import { and } from "drizzle-orm";
 
 /**
  * M-PESA CALLBACK — Vocha inatolewa BAADA ya uthibitisho wa malipo
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ── 2. Zuia marudio (idempotency) ─────────────────────────
-    if (order.status === "paid") {
+    if (order.status !== "pending") {
       return NextResponse.json({ ResultCode: 0, ResultDesc: "Already processed" });
     }
 
@@ -64,9 +65,37 @@ export async function POST(request: NextRequest) {
 
     // ── 4. Malipo yamefanikiwa — toa data ─────────────────────
     const items = stk.CallbackMetadata?.Item || [];
-    const get = (n: string) => items.find((i: any) => i.Name === n)?.Value;
+    const get = (n: string) =>
+      items.find((item: { Name?: string; Value?: string | number }) => item.Name === n)?.Value;
     const receipt = get("MpesaReceiptNumber");
     const amount = get("Amount");
+    const paidPhone = String(get("PhoneNumber") || "");
+
+    if (!receipt || Number(amount) !== Number(order.amount)) {
+      return NextResponse.json({ ResultCode: 0, ResultDesc: "Payment validation failed" });
+    }
+
+    if (paidPhone && paidPhone !== order.phone) {
+      return NextResponse.json({ ResultCode: 0, ResultDesc: "Phone validation failed" });
+    }
+
+    const [duplicateReceipt] = await db
+      .select({ id: portalOrders.id })
+      .from(portalOrders)
+      .where(eq(portalOrders.mpesaReceipt, String(receipt)))
+      .limit(1);
+    if (duplicateReceipt && duplicateReceipt.id !== order.id) {
+      return NextResponse.json({ ResultCode: 0, ResultDesc: "Receipt already used" });
+    }
+
+    const claimResult = await db
+      .update(portalOrders)
+      .set({ status: "processing" })
+      .where(and(eq(portalOrders.id, order.id), eq(portalOrders.status, "pending")));
+    const claimed = Number((claimResult as unknown as Array<{ affectedRows?: number }>)[0]?.affectedRows ?? 0);
+    if (claimed !== 1) {
+      return NextResponse.json({ ResultCode: 0, ResultDesc: "Already processing" });
+    }
 
     // ── 5. Pata router + kifurushi ────────────────────────────
     const [client] = await db
@@ -91,6 +120,7 @@ export async function POST(request: NextRequest) {
 
     // ── 6. TENGENEZA VOCHA (sasa tu, baada ya pesa) ───────────
     let voucherCode: string | null = null;
+    let voucherId: number | null = null;
 
     try {
       const conn = {
@@ -116,6 +146,7 @@ export async function POST(request: NextRequest) {
         );
 
         voucherCode = saved.code;
+        voucherId = saved.id;
       }
     } catch (err) {
       console.error("Voucher generation failed after payment:", err);
@@ -125,8 +156,9 @@ export async function POST(request: NextRequest) {
     await db
       .update(portalOrders)
       .set({
-        status: "paid",
+        status: voucherCode ? "paid" : "paid_pending_fulfillment",
         mpesaReceipt: receipt,
+        voucherId,
         voucherCode,
         completedAt: new Date(),
       })

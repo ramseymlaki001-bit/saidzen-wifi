@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { setClientToken } from "@/lib/client-auth";
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
@@ -31,32 +30,17 @@ export default function LoginPage() {
         return;
       }
 
-      if (data.token) {
-        setClientToken(data.token);
-      }
-
       setSuccess("✅ Umeingia kikamilifu! Inafungua...");
       const target = data.role === "admin" ? "/dashboard" : "/vendor";
-      const redirectUrl = data.token
-        ? `${target}?auth=${encodeURIComponent(data.token)}`
-        : target;
-
-      window.location.href = redirectUrl;
+      window.location.href = target;
     } catch {
       setError("Kosa la mtandao. Jaribu tena.");
       setLoading(false);
     }
   }
 
-  function fillDemo(user: string, pass: string) {
-    setIdentifier(user);
-    setPassword(pass);
-    setError("");
-    setSuccess("");
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-950 via-slate-900 to-brand-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-brand-950 via-slate-900 to-brand-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md animate-fadeIn">
         {/* Logo */}
         <Link href="/" className="flex items-center justify-center gap-3 mb-6">
@@ -146,35 +130,6 @@ export default function LoginPage() {
             >
               Sahau Nenosiri? Bofya hapa
             </Link>
-          </div>
-
-          {/* Quick Demo Logins */}
-          <div className="mt-3 pt-5 border-t border-slate-100">
-            <p className="text-xs text-slate-400 text-center mb-2.5">
-              Au bonyeza kuingia mara moja kwa mbofyo mmoja:
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => fillDemo("Rajabu", "Allahakbar*123")}
-                className="px-3 py-2 text-xs bg-brand-50 hover:bg-brand-100 text-brand-800 rounded-xl font-medium text-left border border-brand-200/60 transition-colors"
-              >
-                <div className="font-bold flex items-center gap-1">
-                  <span>👑</span> Super Admin
-                </div>
-                <div className="text-[10px] text-brand-600 font-mono">Rajabu</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => fillDemo("juma_wifi", "vendor123")}
-                className="px-3 py-2 text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl font-medium text-left border border-emerald-200/60 transition-colors"
-              >
-                <div className="font-bold flex items-center gap-1">
-                  <span>🏪</span> Vendor
-                </div>
-                <div className="text-[10px] text-emerald-600 font-mono">juma_wifi</div>
-              </button>
-            </div>
           </div>
 
           <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">

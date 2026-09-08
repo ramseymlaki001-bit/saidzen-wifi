@@ -45,9 +45,7 @@ export async function GET() {
         mikrotikSimulation: isSimulation(),
         database: getConnectionInfo(),
         cronSecretSet: Boolean(process.env.CRON_SECRET),
-        encryptionKeyIsDefault:
-          !process.env.ENCRYPTION_KEY ||
-          process.env.ENCRYPTION_KEY === "saidzen-default-secret-key-2026",
+        encryptionKeyConfigured: Boolean(process.env.ENCRYPTION_KEY),
       },
     });
   } catch (err) {

@@ -1,7 +1,12 @@
 import CryptoJS from "crypto-js";
 
-const ENCRYPTION_KEY =
-  process.env.ENCRYPTION_KEY || "saidzen-default-secret-key-2026";
+const configuredEncryptionKey = process.env.ENCRYPTION_KEY;
+
+if (!configuredEncryptionKey || configuredEncryptionKey.length < 32) {
+  throw new Error("ENCRYPTION_KEY yenye urefu wa angalau herufi 32 inahitajika");
+}
+
+const ENCRYPTION_KEY: string = configuredEncryptionKey;
 
 /**
  * Kuencrypt password ya MikroTik router kabla ya kuiweka kwenye database.

@@ -116,7 +116,6 @@ export async function POST(request: NextRequest) {
     let newClient;
     let displayName;
     let portalSlug = "";
-    let sessionToken: string | undefined;
 
     if (isExistingVendor) {
       // EXISTING VENDOR adding another router to their account
@@ -206,7 +205,7 @@ export async function POST(request: NextRequest) {
       newClient = client;
 
       // Auto login for new customer
-      sessionToken = await createSession(newUser.id);
+      await createSession(newUser.id);
 
       await logAudit({
         userId: newUser.id,
@@ -261,7 +260,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      token: sessionToken,
       message: isExistingVendor
         ? "Router ya ziada imeongezwa kikamilifu!"
         : "Router imeunganishwa kikamilifu na mfumo uko tayari!",

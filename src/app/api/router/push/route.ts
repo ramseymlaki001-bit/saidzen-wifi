@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { clients, routerCommands } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { getAppUrl } from "@/lib/settings";
+import { waitForRouterCommand } from "@/lib/router-push";
+import { parseRouterPayload, readRouterBoolean, readRouterString } from "@/lib/router-payload";
+
+export const maxDuration = 30;
+
+const NOOP_SCRIPT = ':put "SaidZen: hakuna command mpya"';
 
 type PushBody = {
   token?: unknown;
@@ -36,64 +42,68 @@ ${action}
 }
 
 export async function POST(request: NextRequest) {
-  let body: PushBody;
-  try {
-    const raw = await request.text();
-    if (request.headers.get("content-type")?.includes("application/json")) {
-      body = JSON.parse(raw) as PushBody;
-    } else {
-      body = Object.fromEntries(new URLSearchParams(raw).entries()) as PushBody;
-    }
-  } catch {
-    return NextResponse.json({ error: "Body ya POST si sahihi" }, { status: 400 });
-  }
+  const body = parseRouterPayload(await request.text(), request.headers.get("content-type")) as PushBody;
 
-  const token = typeof body.token === "string" ? body.token.trim() : "";
+  const token = readRouterString(body, "token");
   if (!token || token.length < 32) {
     return NextResponse.json({ error: "Push token si sahihi" }, { status: 401 });
   }
 
-  const [client] = await db
-    .select({ id: clients.id })
-    .from(clients)
-    .where(eq(clients.routerPushToken, token))
-    .limit(1);
-  if (!client) return NextResponse.json({ error: "Router haijasajiliwa" }, { status: 401 });
+  try {
+    const [client] = await db
+      .select({ id: clients.id })
+      .from(clients)
+      .where(eq(clients.routerPushToken, token))
+      .limit(1);
+    if (!client) return NextResponse.json({ error: "Router haijasajiliwa" }, { status: 401 });
 
-  await db
-    .update(clients)
-    .set({ routerLastSeen: new Date() })
-    .where(eq(clients.id, client.id));
+    await db
+      .update(clients)
+      .set({ routerLastSeen: new Date() })
+      .where(eq(clients.id, client.id));
 
-  const commandId = Number(body.commandId);
-  if (Number.isInteger(commandId) && commandId > 0) {
-    const success = body.success === true || body.success === "true";
+    const commandId = Number(readRouterString(body, "commandId"));
+    if (Number.isInteger(commandId) && commandId > 0) {
+      const success = readRouterBoolean(body, "success");
+      await db
+        .update(routerCommands)
+        .set({
+          status: success ? "completed" : "failed",
+          result: JSON.stringify({ success, result: body.result ?? null, routerIp: body.routerIp ?? null }),
+          completedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(routerCommands.id, commandId),
+            eq(routerCommands.clientId, client.id),
+            inArray(routerCommands.status, ["pending", "delivered"])
+          )
+        );
+    }
+
+    let [pending] = await db
+      .select()
+      .from(routerCommands)
+      .where(and(eq(routerCommands.clientId, client.id), eq(routerCommands.status, "pending")))
+      .limit(1);
+
+    if (!pending) {
+      pending = await waitForRouterCommand(client.id);
+    }
+
+    if (!pending) {
+      return new NextResponse(NOOP_SCRIPT, {
+        status: 200,
+        headers: { "content-type": "text/plain; charset=utf-8" },
+      });
+    }
+
     await db
       .update(routerCommands)
-      .set({
-        status: success ? "completed" : "failed",
-        result: JSON.stringify({ success, result: body.result ?? null, routerIp: body.routerIp ?? null }),
-        completedAt: new Date(),
-      })
-      .where(and(eq(routerCommands.id, commandId), eq(routerCommands.clientId, client.id)));
-  }
+      .set({ status: "delivered", deliveredAt: new Date() })
+      .where(eq(routerCommands.id, pending.id));
 
-  const [pending] = await db
-    .select()
-    .from(routerCommands)
-    .where(and(eq(routerCommands.clientId, client.id), eq(routerCommands.status, "pending")))
-    .limit(1);
-
-  if (!pending) {
-    return NextResponse.json({ success: true, pending: false });
-  }
-
-  await db
-    .update(routerCommands)
-    .set({ status: "delivered", deliveredAt: new Date() })
-    .where(eq(routerCommands.id, pending.id));
-
-  if (pending.command === "diagnostics") {
+    if (pending.command === "diagnostics") {
     const mode = getAppUrl().startsWith("https://") ? "https" : "http";
     return new NextResponse(
       `:local saidzenUrl "${getAppUrl()}/api/router/push"\n` +
@@ -105,10 +115,17 @@ export async function POST(request: NextRequest) {
         `/tool fetch url=$saidzenUrl http-method=post http-data=$saidzenPayload mode=${mode} output=none`,
       { status: 200, headers: { "content-type": "text/plain; charset=utf-8" } }
     );
-  }
+    }
 
-  return new NextResponse(resultScript(getAppUrl(), token, pending.id, pending.command), {
-    status: 200,
-    headers: { "content-type": "text/plain; charset=utf-8" },
-  });
+    return new NextResponse(resultScript(getAppUrl(), token, pending.id, pending.command), {
+      status: 200,
+      headers: { "content-type": "text/plain; charset=utf-8" },
+    });
+  } catch (error) {
+    console.error("Router push failed", error);
+    return new NextResponse(NOOP_SCRIPT, {
+      status: 200,
+      headers: { "content-type": "text/plain; charset=utf-8" },
+    });
+  }
 }

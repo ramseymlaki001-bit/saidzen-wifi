@@ -49,7 +49,39 @@ function buildHotspotSetupCommand(appUrl: string): string {
 
 function buildPushSetupCommand(appUrl: string, token: string, fetchMode: string): string {
   const endpoint = `${appUrl}/api/router/push`;
-  return `# 7. Weka outbound push: router ndiyo huanzisha mawasiliano
+  const syncEndpoint = `${appUrl}/api/router/sync`;
+  return `# 7. Weka outbound push na local offline queue
+/system script remove [find name="saidzen-queue-sync"]
+/system script add name="saidzen-queue-sync" policy=read,write,test source={
+  :local queuePrefix "saidzen-q-"
+  :local identity [/system identity get name]
+  :local users [/ip hotspot active print count-only]
+  :local eventId ("evt-" . [:pick "${token}" 4 12] . "-" . [/system resource get uptime])
+  :local fileName ($queuePrefix . $eventId . ".txt")
+  :local queued 0
+  :foreach existingId in=[/file find] do={
+    :local existingName [/file get $existingId name]
+    :if ([:pick $existingName 0 [:len $queuePrefix]] = $queuePrefix) do={ :set queued ($queued + 1) }
+  }
+  :if (($queued < 100) and ([:len [/file find name=$fileName]] = 0)) do={
+    /file add name=$fileName contents=("eventId=" . $eventId . "&type=heartbeat&payload=" . $users . "|" . $identity)
+  }
+  :foreach fileId in=[/file find] do={
+    :local name [/file get $fileId name]
+    :if ([:pick $name 0 [:len $queuePrefix]] = $queuePrefix) do={
+      :local data [/file get $fileId contents]
+      :do {
+        :local response [/tool fetch url="${syncEndpoint}" http-method=post http-data=("token=${token}&" . $data) mode=${fetchMode} as-value output=user]
+        :if (($response->"status") = "finished") do={ /file remove $fileId }
+      } on-error={}
+    }
+  }
+}
+/system scheduler remove [find name="saidzen-queue-sync"]
+/system scheduler add name="saidzen-queue-sync" interval=00:00:30 on-event="/system script run saidzen-queue-sync"
+/system script run saidzen-queue-sync
+
+# 8. Weka outbound push: router ndiyo huanzisha mawasiliano
 /system script remove [find name="saidzen-push"]
 /system script add name="saidzen-push" policy=read,write,test source={
   :local response [/tool fetch url="${endpoint}" http-method=post http-data="token=${token}" mode=${fetchMode} as-value output=user]
@@ -57,7 +89,7 @@ function buildPushSetupCommand(appUrl: string, token: string, fetchMode: string)
   :if ([:len $script] > 0) do={ :execute [:parse $script] }
 }
 /system scheduler remove [find name="saidzen-push"]
-/system scheduler add name="saidzen-push" interval=00:00:10 on-event="/system script run saidzen-push"
+/system scheduler add name="saidzen-push" interval=00:00:30 on-event="/system script run saidzen-push"
 /system script run saidzen-push`;
 }
 

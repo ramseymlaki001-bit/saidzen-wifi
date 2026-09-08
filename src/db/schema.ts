@@ -144,7 +144,7 @@ export const portalOrders = mysqlTable("portal_orders", {
     .notNull(),
   phone: varchar("phone", { length: 20 }).notNull(),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  status: mysqlEnum("status", ["pending", "paid", "failed", "cancelled"]).notNull().default("pending"),
+  status: mysqlEnum("status", ["pending", "processing", "paid_pending_fulfillment", "paid", "failed", "cancelled"]).notNull().default("pending"),
   checkoutRequestId: varchar("checkout_request_id", { length: 100 }),
   mpesaReceipt: varchar("mpesa_receipt", { length: 50 }),
   voucherId: int("voucher_id").references(() => vouchers.id),
@@ -194,6 +194,17 @@ export const routerCommands = mysqlTable("router_commands", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   deliveredAt: timestamp("delivered_at"),
   completedAt: timestamp("completed_at"),
+});
+
+// ── Events zilizokusanywa na router wakati wa offline ─────────
+export const routerSyncEvents = mysqlTable("router_sync_events", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("client_id").references(() => clients.id).notNull(),
+  eventId: varchar("event_id", { length: 100 }).notNull().unique(),
+  eventType: varchar("event_type", { length: 50 }).notNull(),
+  payload: text("payload").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  receivedAt: timestamp("received_at").defaultNow().notNull(),
 });
 
 // ── M-Pesa Integration Config ───────────────────────────────

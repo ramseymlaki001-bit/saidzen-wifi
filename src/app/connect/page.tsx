@@ -97,7 +97,7 @@ export default function ConnectPage() {
       <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur">
         <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center font-black text-white">
+            <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-brand-600 to-emerald-400 flex items-center justify-center font-black text-white">
               S
             </div>
             <span className="font-extrabold text-lg">
@@ -130,7 +130,7 @@ export default function ConnectPage() {
           </div>
           <h1 className="text-3xl sm:text-4xl font-black">
             Unganisha MikroTik Yako kwa{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-brand-400">
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-emerald-400 to-brand-400">
               Command Moja
             </span>
           </h1>

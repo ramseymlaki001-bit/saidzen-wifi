@@ -527,9 +527,7 @@ export default function SupportPage() {
               {diagnostics.networkHint && (
                 <p className="mt-3 rounded-lg bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900 text-left">
                   💡 {diagnostics.networkHint}
-                </p>
-              )}
-              <div className="mt-3 p-3 bg-white rounded-lg border border-rose-200 text-xs text-slate-600 space-y-1 text-left">
+                              <div className="mt-3 p-3 bg-white rounded-lg border border-rose-200 text-xs text-slate-600 space-y-1 text-left">
                 <p className="font-bold">Mambo ya Kuangalia:</p>
                 <p>1. Je, router iko waka (imeunganishwa na umeme)?</p>
                 <p>2. Je, IP ya router ({diagnostics.routerIp}) ni sahihi?</p>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { setClientToken, authFetch } from "@/lib/client-auth";
+import { authFetch } from "@/lib/client-auth";
 
 interface VoucherProfile {
   id: string;
@@ -169,10 +169,7 @@ export default function HomePage() {
       }
 
       // Success -> Redirect to vendor dashboard
-      if (data.token) {
-        setClientToken(data.token);
-      }
-      window.location.href = data.token ? `/vendor/vouchers?auth=${encodeURIComponent(data.token)}` : "/vendor/vouchers";
+      window.location.href = "/vendor/vouchers";
     } catch {
       setSetupError("Hitilafu ya seva. Jaribu tena.");
       setIsSubmittingSetup(false);
@@ -202,12 +199,8 @@ export default function HomePage() {
         return;
       }
 
-      if (data.token) {
-        setClientToken(data.token);
-      }
-
       const target = data.role === "admin" ? "/dashboard" : "/vendor";
-      window.location.href = data.token ? `${target}?auth=${encodeURIComponent(data.token)}` : target;
+      window.location.href = target;
     } catch {
       setLoginError("Hitilafu ya mtandao.");
       setIsLoggingIn(false);
@@ -1113,33 +1106,6 @@ export default function HomePage() {
               </button>
             </form>
 
-            <div className="pt-3 border-t border-slate-800 text-center space-y-2">
-              <div className="text-xs text-slate-500">
-                Akaunti za demo za kujaribu:
-              </div>
-              <div className="flex justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLoginForm({ identifier: "juma_wifi", password: "vendor123" });
-                    setLoginError("");
-                  }}
-                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono"
-                >
-                  juma_wifi
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLoginForm({ identifier: "admin", password: "admin123" });
-                    setLoginError("");
-                  }}
-                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono"
-                >
-                  admin
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       )}

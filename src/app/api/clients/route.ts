@@ -101,25 +101,39 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash dashboard password and encrypt router password
-    const passwordHash = await hashPassword(password || "vendor123");
-    const encryptedRouterPassword = encrypt(routerPassword);
+    if (typeof password !== "string" || password.length < 12) {
+      return NextResponse.json(
+        { error: "Nenosiri la vendor lazima liwe na angalau herufi 12." },
+        { status: 400 }
+      );
+    }
 
-    const newUser = await insertReturning<typeof users.$inferSelect>(users, {
-        name,
-        username: cleanUsername,
-        email: email ? email.toLowerCase().trim() : null,
-        phone,
-      passwordHash,
-      role: "vendor",
-    });
+    if (typeof routerPassword !== "string" || routerPassword.length === 0) {
+      return NextResponse.json(
+        { error: "Nenosiri la router linahitajika." },
+        { status: 400 }
+      );
+    }
+
+    // Hash dashboard password and encrypt router password
+    const passwordHash = await hashPassword(password);
+    const encryptedRouterPassword = encrypt(routerPassword);
 
     const subscriptionEnd = new Date();
     subscriptionEnd.setDate(subscriptionEnd.getDate() + 30);
 
     const portalSlug = await allocatePortalSlug(businessName || cleanUsername);
+    const newClient = await db.transaction(async (tx) => {
+      const newUser = await insertReturning<typeof users.$inferSelect>(users, {
+        name,
+        username: cleanUsername,
+        email: email ? email.toLowerCase().trim() : null,
+        phone,
+        passwordHash,
+        role: "vendor",
+      }, tx);
 
-    const newClient = await insertReturning<typeof clients.$inferSelect>(clients, {
+      const client = await insertReturning<typeof clients.$inferSelect>(clients, {
         userId: newUser.id,
         dashboardUsername: cleanUsername,
         portalSlug,
@@ -130,14 +144,13 @@ export async function POST(request: NextRequest) {
         routerPasswordEncrypted: encryptedRouterPassword,
         routerPort: routerPort || 8728,
         vpnIp,
-      monthlyFee: monthlyFee || "50000",
-      subscriptionEnd,
-    });
+        monthlyFee: monthlyFee || "50000",
+        subscriptionEnd,
+      }, tx);
 
-    // Create default voucher profiles
-    await db.insert(voucherProfiles).values([
+      await tx.insert(voucherProfiles).values([
       {
-        clientId: newClient.id,
+        clientId: client.id,
         name: "Saa 1",
         duration: "1h",
         price: "500",
@@ -145,7 +158,7 @@ export async function POST(request: NextRequest) {
         mikrotikProfile: "Saa_1",
       },
       {
-        clientId: newClient.id,
+        clientId: client.id,
         name: "Saa 2",
         duration: "2h",
         price: "800",
@@ -153,7 +166,7 @@ export async function POST(request: NextRequest) {
         mikrotikProfile: "Saa_2",
       },
       {
-        clientId: newClient.id,
+        clientId: client.id,
         name: "Saa 6",
         duration: "6h",
         price: "1500",
@@ -161,7 +174,7 @@ export async function POST(request: NextRequest) {
         mikrotikProfile: "Saa_6",
       },
       {
-        clientId: newClient.id,
+        clientId: client.id,
         name: "Siku 1 (Saa 24)",
         duration: "24h",
         price: "2000",
@@ -169,14 +182,16 @@ export async function POST(request: NextRequest) {
         mikrotikProfile: "Saa_24",
       },
       {
-        clientId: newClient.id,
+        clientId: client.id,
         name: "Wiki 1",
         duration: "7d",
         price: "8000",
         speedLimit: "5M/5M",
         mikrotikProfile: "Wiki_1",
       },
-    ]);
+      ]);
+      return client;
+    });
 
     return NextResponse.json({
       success: true,

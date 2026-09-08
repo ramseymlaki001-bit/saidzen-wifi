@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     const identifier = (
       body.identifier || body.username || body.email || ""
     ).trim();
-    const password = body.password || "";
+    const password = typeof body.password === "string" ? body.password : "";
 
     if (!identifier || !password) {
       return NextResponse.json(
@@ -129,7 +129,6 @@ export async function POST(request: NextRequest) {
       role: matchedUser.role,
       name: matchedUser.name,
       username: matchedUser.username,
-      token, // Return token for client storage
     });
   } catch (err) {
     console.error("Login error:", err);

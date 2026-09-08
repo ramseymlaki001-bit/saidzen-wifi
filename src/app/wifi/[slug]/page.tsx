@@ -173,7 +173,9 @@ export default function WifiPortalPage() {
         for (let i = 0; i < 40; i++) {
           await new Promise((r) => setTimeout(r, 3000));
           try {
-            const chk = await fetch(`/api/portal/order?id=${d.orderId}`);
+            const chk = await fetch(
+              `/api/portal/order?id=${d.orderId}&token=${encodeURIComponent(d.orderToken || "")}`
+            );
             const st = await chk.json();
 
             if (st.status === "paid") {
@@ -200,6 +202,13 @@ export default function WifiPortalPage() {
               setBuying(false);
               return;
             }
+            if (st.status === "paid_pending_fulfillment") {
+              setPurchase({ success: false, error: st.message });
+              setWaitingPayment(false);
+              setBuying(false);
+              return;
+            }
+            if (st.status === "processing" || st.status === "pending") continue;
           } catch {
             /* endelea kupiga simu */
           }

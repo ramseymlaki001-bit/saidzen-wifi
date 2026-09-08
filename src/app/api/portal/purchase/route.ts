@@ -9,6 +9,7 @@ import {
 import { eq, and } from "drizzle-orm";
 import { RateLimiterMemory } from "rate-limiter-flexible";
 import { insertReturning } from "@/lib/db-mysql";
+import { createOrderAccessToken } from "@/lib/order-access";
 
 /**
  * NUNUA VOCHA KWA M-PESA KIOTOMATIKI — Mteja wa mwisho
@@ -243,13 +244,14 @@ export async function POST(request: NextRequest) {
         success: true,
         requiresPayment: true,
         orderId: order.id,
+        orderToken: createOrderAccessToken(order.id),
         amount,
         phone: msisdn,
         package: pkg.name,
         message:
           stkData.CustomerMessage ||
           "Ombi la malipo limetumwa. Angalia simu yako na uingize PIN ya M-Pesa.",
-        checkUrl: `/api/portal/order?id=${order.id}`,
+        checkUrl: `/api/portal/order?id=${order.id}&token=${encodeURIComponent(createOrderAccessToken(order.id))}`,
       });
     } catch (err) {
       await db

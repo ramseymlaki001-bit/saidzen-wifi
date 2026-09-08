@@ -24,17 +24,16 @@ export async function createSession(userId: number): Promise<string> {
 
   try {
     const cookieStore = await cookies();
-    // Standard cookie: httpOnly false allows JS fallback in iframe
     cookieStore.set("session_token", token, {
-      httpOnly: false,
-      secure: false,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
       maxAge: 7 * 24 * 60 * 60,
       expires: expiresAt,
     });
   } catch {
-    // If cookies() cannot be set in current context, token is still returned for localStorage/headers
+    // Server-side callers may still use the returned token explicitly.
   }
 
   return token;

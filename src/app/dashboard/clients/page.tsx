@@ -45,7 +45,7 @@ export default function ClientsPage() {
     username: "",
     email: "",
     phone: "",
-    password: "vendor123",
+    password: "",
     businessName: "",
     location: "",
     routerIp: "",
@@ -92,7 +92,7 @@ export default function ClientsPage() {
         username: "",
         email: "",
         phone: "",
-        password: "vendor123",
+        password: "",
         businessName: "",
         location: "",
         routerIp: "",
@@ -331,7 +331,7 @@ export default function ClientsPage() {
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm"
-                  placeholder="vendor123"
+                  placeholder="Weka nenosiri la muda mrefu"
                   required
                 />
               </div>

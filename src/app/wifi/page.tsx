@@ -61,12 +61,12 @@ export default function WifiDirectoryPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-linear-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100 flex flex-col">
       {/* Header */}
       <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center font-black text-white shadow-md">
+            <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-brand-600 to-emerald-400 flex items-center justify-center font-black text-white shadow-md">
               S
             </div>
             <span className="font-extrabold text-lg tracking-tight">
@@ -95,7 +95,7 @@ export default function WifiDirectoryPage() {
       <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-10 space-y-8">
         {/* Title */}
         <div className="text-center space-y-2.5">
-          <div className="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-tr from-emerald-500 to-brand-500 flex items-center justify-center text-3xl shadow-xl shadow-emerald-500/20 mb-3">
+          <div className="w-16 h-16 mx-auto rounded-3xl bg-linear-to-tr from-emerald-500 to-brand-500 flex items-center justify-center text-3xl shadow-xl shadow-emerald-500/20 mb-3">
             📶
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">

@@ -6,17 +6,18 @@ import { eq } from "drizzle-orm";
 /** Ingiza rekodi moja na uirudishe */
 export async function insertReturning<T = any>(
   table: any,
-  values: any
+  values: any,
+  database: any = db
 ): Promise<T> {
   try {
     // MySQL haina returning; fallback ya insertId iko hapa chini.
-    const rows: any = await (db.insert(table) as any).values(values).returning();
+    const rows: any = await (database.insert(table) as any).values(values).returning();
     return rows[0] as T;
   } catch {
     // Katika MySQL, chukua insertId kisha select
-    const res: any = await db.insert(table).values(values);
+    const res: any = await database.insert(table).values(values);
     const insertId = Number(res?.[0]?.insertId ?? res?.insertId ?? 0);
-    const rows: any[] = await db
+    const rows: any[] = await database
       .select()
       .from(table)
       .where(eq(table.id, insertId))

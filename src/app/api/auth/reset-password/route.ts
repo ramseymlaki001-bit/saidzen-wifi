@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { users, passwordResetTokens } from "@/db/schema";
+import { users, passwordResetTokens, sessions } from "@/db/schema";
 import { eq, and, gt } from "drizzle-orm";
 import { hashPassword } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
       .update(passwordResetTokens)
       .set({ used: true })
       .where(eq(passwordResetTokens.id, resetEntry.id));
+    await db.delete(sessions).where(eq(sessions.userId, resetEntry.userId));
 
     await logAudit({
       userId: resetEntry.userId,

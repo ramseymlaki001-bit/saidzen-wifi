@@ -6,9 +6,11 @@ import mysql from "mysql2/promise";
  *
  * Mfumo unaunganishwa na MySQL kupitia mysql2 na Drizzle ORM.
  */
-const databaseUrl =
-  process.env.DATABASE_URL ||
-  "mysql://saidzen:saidzen_secure_db_pass_2026@127.0.0.1:3306/saidzen_db";
+const databaseUrl = process.env.DATABASE_URL;
+
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL haijawekwa");
+}
 
 const globalForDb = globalThis as typeof globalThis & {
   __saidzenMysqlPool?: mysql.Pool;

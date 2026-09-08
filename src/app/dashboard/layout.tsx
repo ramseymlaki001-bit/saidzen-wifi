@@ -5,9 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   authFetch,
-  saveStoredToken,
   removeStoredToken,
-  getClientToken,
   stripAuthFromUrl,
 } from "@/lib/client-auth";
 
@@ -29,20 +27,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
     async function loadSession() {
       try {
-        if (typeof window !== "undefined") {
-          const params = new URLSearchParams(window.location.search);
-          const urlAuth = params.get("auth") || params.get("token");
-          if (urlAuth && urlAuth.trim().length > 10) {
-            saveStoredToken(urlAuth.trim());
-          }
-        }
-
-        const token = getClientToken();
-        const url = token
-          ? `/api/auth/session?token=${encodeURIComponent(token)}`
-          : "/api/auth/session";
-
-        const r = await authFetch(url);
+        const r = await authFetch("/api/auth/session");
         if (!r.ok) throw new Error("Unauthorized");
         const data = await r.json();
         if (!mounted) return;
@@ -52,7 +37,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           return;
         }
 
-        if (data.token) saveStoredToken(data.token);
         stripAuthFromUrl();
         setSession(data);
         setAuthError("");
