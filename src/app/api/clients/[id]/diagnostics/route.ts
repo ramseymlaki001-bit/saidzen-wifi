@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { getSession } from "@/lib/auth";
 import { testConnection, getHotspotUsers } from "@/lib/mikrotik";
 import { isPrivateIPv4 } from "@/lib/network";
+import { isRouterPushEnabled, queueRouterCommand } from "@/lib/router-push";
 
 /**
  * Admin kupima muunganisho na router ya mteja
@@ -32,6 +33,20 @@ export async function POST(
       return NextResponse.json(
         { error: "Mteja hajapatikana" },
         { status: 404 }
+      );
+    }
+
+    if (isRouterPushEnabled()) {
+      if (!client.routerPushToken) {
+        return NextResponse.json(
+          { error: "Router hii haijasetiwa outbound push. Tengeneza command mpya ya /connect." },
+          { status: 503 }
+        );
+      }
+      const commandId = await queueRouterCommand(client.id, "diagnostics");
+      return NextResponse.json(
+        { success: true, pending: true, commandId, message: "Uchunguzi umetumwa; router itarudisha majibu kupitia outbound POST." },
+        { status: 202 }
       );
     }
 

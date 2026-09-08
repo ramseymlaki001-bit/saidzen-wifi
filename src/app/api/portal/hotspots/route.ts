@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { clients } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, isNotNull } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -16,11 +16,27 @@ export async function GET() {
         location: clients.location,
         routerIp: clients.routerIp,
         status: clients.status,
+        subscriptionEnd: clients.subscriptionEnd,
       })
       .from(clients)
-      .where(eq(clients.status, "active"));
+      .where(and(eq(clients.status, "active"), isNotNull(clients.portalSlug)))
+      .orderBy(clients.businessName);
 
-    return NextResponse.json(list);
+    const activePortals = list.filter(
+      (client) => !!client.portalSlug && new Date(client.subscriptionEnd) > new Date()
+    );
+
+    return NextResponse.json(
+      activePortals.map((client) => ({
+        id: client.id,
+        businessName: client.businessName,
+        portalSlug: client.portalSlug,
+        dashboardUsername: client.dashboardUsername,
+        location: client.location,
+        routerIp: client.routerIp,
+        status: client.status,
+      }))
+    );
   } catch (err) {
     console.error("Public hotspots list error:", err);
     return NextResponse.json([]);

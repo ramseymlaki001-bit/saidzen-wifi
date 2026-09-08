@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { getSession } from "@/lib/auth";
 import { configureHotspot } from "@/lib/mikrotik";
 import { getAppUrl } from "@/lib/settings";
+import { isRouterPushEnabled } from "@/lib/router-push";
 
 export async function POST(
   _request: NextRequest,
@@ -25,6 +26,13 @@ export async function POST(
 
     if (!client) {
       return NextResponse.json({ error: "Mteja hajapatikana" }, { status: 404 });
+    }
+
+    if (isRouterPushEnabled()) {
+      return NextResponse.json(
+        { error: "Sanidi Hotspot kupitia command mpya ya /connect; mfumo wa outbound push haukubali script ya API ya zamani." },
+        { status: 409 }
+      );
     }
 
     const appUrl = getAppUrl();

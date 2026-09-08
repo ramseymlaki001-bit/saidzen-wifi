@@ -15,6 +15,7 @@ const SETUP_SQL: string[] = [
   `CREATE TABLE IF NOT EXISTS portal_orders (id INT AUTO_INCREMENT PRIMARY KEY, client_id INT NOT NULL, profile_id INT NOT NULL, phone VARCHAR(20) NOT NULL, amount DECIMAL(10,2) NOT NULL, status ENUM('pending','paid','failed','cancelled') NOT NULL DEFAULT 'pending', checkout_request_id VARCHAR(100), mpesa_receipt VARCHAR(50), voucher_id INT NULL, voucher_code VARCHAR(20), created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, completed_at TIMESTAMP NULL, FOREIGN KEY (client_id) REFERENCES clients(id), FOREIGN KEY (profile_id) REFERENCES voucher_profiles(id), FOREIGN KEY (voucher_id) REFERENCES vouchers(id)) ENGINE=InnoDB;`,
   "CREATE TABLE IF NOT EXISTS system_settings (`key` VARCHAR(100) PRIMARY KEY, value TEXT NOT NULL, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP) ENGINE=InnoDB;",
   `CREATE TABLE IF NOT EXISTS connection_tokens (id INT AUTO_INCREMENT PRIMARY KEY, token VARCHAR(255) NOT NULL UNIQUE, business_name VARCHAR(255) NOT NULL, location VARCHAR(255), contact_phone VARCHAR(50), dashboard_username VARCHAR(100) NOT NULL, dashboard_password_hash TEXT NOT NULL, assigned_vpn_ip VARCHAR(45) NOT NULL, status ENUM('pending','connected','expired') NOT NULL DEFAULT 'pending', client_id INT NULL, detected_router_ip VARCHAR(45), router_public_key VARCHAR(100), connected_at TIMESTAMP NULL, expires_at TIMESTAMP NOT NULL, created_by INT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (client_id) REFERENCES clients(id), FOREIGN KEY (created_by) REFERENCES users(id)) ENGINE=InnoDB;`,
+  `CREATE TABLE IF NOT EXISTS router_commands (id INT AUTO_INCREMENT PRIMARY KEY, client_id INT NOT NULL, command VARCHAR(50) NOT NULL, payload TEXT NOT NULL, status ENUM('pending','delivered','completed','failed') NOT NULL DEFAULT 'pending', result TEXT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, delivered_at TIMESTAMP NULL, completed_at TIMESTAMP NULL, FOREIGN KEY (client_id) REFERENCES clients(id), INDEX router_commands_poll (client_id, status, id)) ENGINE=InnoDB;`,
   `CREATE TABLE IF NOT EXISTS mpesa_config (id INT AUTO_INCREMENT PRIMARY KEY, client_id INT UNIQUE NULL, consumer_key TEXT NOT NULL, consumer_secret TEXT NOT NULL, shortcode VARCHAR(20) NOT NULL, passkey TEXT NOT NULL, callback_url TEXT, environment VARCHAR(20) NOT NULL DEFAULT 'sandbox', enabled BOOLEAN NOT NULL DEFAULT FALSE, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (client_id) REFERENCES clients(id)) ENGINE=InnoDB;`,
 ];
 
@@ -32,6 +33,19 @@ export async function GET() {
           results.push({ step: `SQL ${i + 1}`, status: "tayari lipo" });
         } else {
           throw err;
+        }
+
+        // Migrate installations created before outbound push was introduced.
+        for (const statement of [
+          "ALTER TABLE clients ADD COLUMN router_push_token VARCHAR(100) NULL UNIQUE",
+          "ALTER TABLE clients ADD COLUMN router_last_seen TIMESTAMP NULL",
+        ]) {
+          try {
+            await pool.query(statement);
+          } catch (err) {
+            const msg = err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase();
+            if (!msg.includes("duplicate column") && !msg.includes("already exists")) throw err;
+          }
         }
       }
     }

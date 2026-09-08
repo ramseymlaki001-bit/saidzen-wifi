@@ -174,6 +174,7 @@ export async function POST(request: NextRequest) {
         routerPasswordEncrypted: encrypt(""),
         routerPort: 8728,
         vpnIp,
+        routerPushToken: token,
         contactPhone: pending.contactPhone,
         status: "active",
       monthlyFee: "50000",

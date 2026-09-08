@@ -50,6 +50,8 @@ export const clients = mysqlTable("clients", {
   routerPasswordEncrypted: text("router_password_encrypted").notNull(),
   routerPort: int("router_port").notNull().default(8728),
   vpnIp: varchar("vpn_ip", { length: 45 }),
+  routerPushToken: varchar("router_push_token", { length: 100 }).unique(),
+  routerLastSeen: timestamp("router_last_seen"),
   contactPhone: varchar("contact_phone", { length: 50 }),
   status: mysqlEnum("status", ["active", "suspended", "expired"]).notNull().default("active"),
   monthlyFee: decimal("monthly_fee", { precision: 10, scale: 2 })
@@ -176,6 +178,22 @@ export const connectionTokens = mysqlTable("connection_tokens", {
   expiresAt: timestamp("expires_at").notNull(),
   createdBy: int("created_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// ── Commands za outbound push kwenda MikroTik ─────────────────
+// Router ndiyo huanzisha POST; server haifungui connection kwenda router.
+export const routerCommands = mysqlTable("router_commands", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("client_id").references(() => clients.id).notNull(),
+  command: varchar("command", { length: 50 }).notNull(),
+  payload: text("payload").notNull(),
+  status: mysqlEnum("status", ["pending", "delivered", "completed", "failed"])
+    .notNull()
+    .default("pending"),
+  result: text("result"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  deliveredAt: timestamp("delivered_at"),
+  completedAt: timestamp("completed_at"),
 });
 
 // ── M-Pesa Integration Config ───────────────────────────────

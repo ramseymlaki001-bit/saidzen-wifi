@@ -47,6 +47,20 @@ function buildHotspotSetupCommand(appUrl: string): string {
 };`;
 }
 
+function buildPushSetupCommand(appUrl: string, token: string, fetchMode: string): string {
+  const endpoint = `${appUrl}/api/router/push`;
+  return `# 7. Weka outbound push: router ndiyo huanzisha mawasiliano
+/system script remove [find name="saidzen-push"]
+/system script add name="saidzen-push" policy=read,write,test source={
+  :local response [/tool fetch url="${endpoint}" http-method=post http-data="token=${token}" mode=${fetchMode} as-value output=user]
+  :local script ($response->"data")
+  :if ([:len $script] > 0) do={ :execute [:parse $script] }
+}
+/system scheduler remove [find name="saidzen-push"]
+/system scheduler add name="saidzen-push" interval=00:00:10 on-event="/system script run saidzen-push"
+/system script run saidzen-push`;
+}
+
 /**
  * Kutafuta IP ya VPN ambayo bado haijatumiwa.
  * Inaangalia: jedwali la clients (vpn_ip) na token zinazosubiri.
@@ -121,15 +135,14 @@ export async function buildMikrotikCommand(opts: {
   allowed-address=${cfg.subnetPrefix}.0/24 \\
   persistent-keepalive=25
 
-# 4. Washa API ya MikroTik kupitia VPN pekee
-/ip service set api disabled=no port=8728 address=${cfg.subnetPrefix}.0/24
-
 ${buildHotspotSetupCommand(appUrl)}
 
 # 6. Jisajili kwenye tovuti (inajifanya yenyewe)
 /tool fetch url="${callback}" http-method=post \\
   http-data="token=${token}&vpnIp=${vpnIp}" \\
   mode=${fetchMode} as-value output=user
+
+${buildPushSetupCommand(appUrl, token, fetchMode)}
 
 # ============================================================
 #  IMEKAMILIKA! Rudi kwenye tovuti kuona hali ya muunganisho.
@@ -166,26 +179,21 @@ export async function buildDirectApiCommand(opts: {
 #  NAKILI MISTARI YOTE, kisha bandika kwenye WinBox → New Terminal
 # ============================================================
 
-# 1. Tambua aina ya MikroTik na washa API
+# 1. Tambua taarifa za MikroTik (hakuna inbound API inayofunguliwa)
 ${detection}
-/ip service set api disabled=no port=8728
-
-# 2. Ruhusu API kwa muda wa usajili (ifunge baada ya kuunganishwa)
-/ip firewall filter add chain=input protocol=tcp dst-port=8728 action=accept comment="SaidZen API - temporary" disabled=no
 
 ${buildHotspotSetupCommand(appUrl)}
 
-# 4. Jisajili kwenye tovuti
+# 3. Jisajili kwenye tovuti
 /tool fetch url="${callback}" http-method=post \\
   http-data="${payload}" \\
   mode=${fetchMode} as-value output=user
 
+${buildPushSetupCommand(appUrl, opts.token, fetchMode)}
+
 # ============================================================
-#  KUMBUKA: RouterOS 6 haina WireGuard.
-#  IP ya ndani inafanya kazi ikiwa website iko kwenye LAN hiyo.
-#  Kwa Vercel, tumia Public IP/port-forward au VPN kwa API ya 8728.
-#  Baada ya kuunganishwa, zima rule ya muda:
-#  /ip firewall filter disable [find comment="SaidZen API - temporary"]
+#  KUMBUKA: RouterOS 6 haina WireGuard; outbound push bado inafanya kazi.
+#  Hakuna API ya MikroTik inayohitaji kufunguliwa kwenye internet.
 # ============================================================`;
 
   return { command, cfg };

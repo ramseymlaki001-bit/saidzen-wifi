@@ -4,6 +4,7 @@ import { clients } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { getSession } from "@/lib/auth";
 import { enableHotspot, disableHotspot } from "@/lib/mikrotik";
+import { isRouterPushEnabled, queueRouterCommand } from "@/lib/router-push";
 
 export async function POST(
   request: NextRequest,
@@ -28,6 +29,21 @@ export async function POST(
       return NextResponse.json(
         { error: "Mteja hajapatikana" },
         { status: 404 }
+      );
+    }
+
+    if (isRouterPushEnabled()) {
+      if (!client.routerPushToken) {
+        return NextResponse.json(
+          { error: "Router hii haijasetiwa outbound push. Tengeneza command mpya ya /connect." },
+          { status: 503 }
+        );
+      }
+      const command = action === "suspend" ? "disable_hotspot" : "enable_hotspot";
+      const commandId = await queueRouterCommand(client.id, command);
+      return NextResponse.json(
+        { success: true, pending: true, commandId, message: "Ombi limewekwa; router itatekeleza kupitia outbound POST." },
+        { status: 202 }
       );
     }
 

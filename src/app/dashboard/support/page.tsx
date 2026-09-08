@@ -38,6 +38,12 @@ interface DiagnosticsResult {
   networkHint?: string | null;
 }
 
+interface PushCommandResult {
+  commandId: number;
+  status: "pending" | "delivered" | "completed" | "failed";
+  result?: { success?: boolean; result?: string; activeUsers?: number; identity?: string } | null;
+}
+
 export default function SupportPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,6 +56,17 @@ export default function SupportPage() {
   const [blockSuccess, setBlockSuccess] = useState("");
   const [configuringHotspot, setConfiguringHotspot] = useState<number | null>(null);
   const [deletingClient, setDeletingClient] = useState<number | null>(null);
+
+  async function waitForPushCommand(clientId: number, commandId: number) {
+    for (let attempt = 0; attempt < 30; attempt++) {
+      await new Promise((resolve) => window.setTimeout(resolve, 2000));
+      const res = await authFetch(`/api/clients/${clientId}/push-command/${commandId}`);
+      if (!res.ok) throw new Error("Imeshindikana kusoma majibu ya router");
+      const data = (await res.json()) as PushCommandResult;
+      if (data.status === "completed" || data.status === "failed") return data;
+    }
+    throw new Error("Router haijajibu ndani ya dakika moja");
+  }
 
   const loadClients = useCallback(async () => {
     try {
@@ -77,7 +94,21 @@ export default function SupportPage() {
         method: "POST",
       });
       const data = await res.json();
-      setDiagnostics(data);
+      if (data.pending && data.commandId) {
+        const completed = await waitForPushCommand(clientId, data.commandId);
+        if (completed.status !== "completed") throw new Error("Router imeshindwa kufanya uchunguzi");
+        setDiagnostics({
+          routerOnline: true,
+          message: "Router imejibu kupitia outbound POST",
+          latency: "push",
+          activeUsers: Number(completed.result?.activeUsers || 0),
+          businessName: "",
+          routerIp: "",
+          subscriptionEnd: "",
+        });
+      } else {
+        setDiagnostics(data);
+      }
     } catch {
       setDiagnostics({
         routerOnline: false,
@@ -106,6 +137,17 @@ export default function SupportPage() {
         body: JSON.stringify({ reason: blockReason }),
       });
       const data = await res.json();
+      if (res.status === 202 && data.pending && data.commandId) {
+        const completed = await waitForPushCommand(clientId, data.commandId);
+        if (completed.status === "completed") {
+          setBlockSuccess("✅ Router imepokea ombi na huduma imezimwa");
+          await loadClients();
+        } else {
+          setBlockSuccess("❌ Router imeshindwa kuzima huduma");
+        }
+        setBlocking(false);
+        return;
+      }
       if (res.ok) {
         setBlockSuccess("✅ Huduma imezimwa kikamilifu");
         await loadClients();
@@ -124,9 +166,24 @@ export default function SupportPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "activate" }),
     });
-    if (res.ok) {
+    const data = await res.json();
+    if (res.status === 202 && data.pending && data.commandId) {
+      try {
+        const completed = await waitForPushCommand(clientId, data.commandId);
+        if (completed.status === "completed") {
+          await loadClients();
+          setBlockSuccess("✅ Router imepokea ombi na huduma imewashwa tena");
+        } else {
+          setBlockSuccess("❌ Router imeshindwa kuwasha huduma");
+        }
+      } catch {
+        setBlockSuccess("❌ Router haikujibu ombi la kuwasha");
+      }
+    } else if (res.ok) {
       await loadClients();
       setBlockSuccess("✅ Huduma imewashwa tena");
+    } else {
+      setBlockSuccess(`❌ ${data.error || "Imeshindikana kuwasha huduma"}`);
     }
 
   }
