@@ -1,26 +1,26 @@
 import CryptoJS from "crypto-js";
 
-const configuredEncryptionKey = process.env.ENCRYPTION_KEY;
-
-if (!configuredEncryptionKey || configuredEncryptionKey.length < 32) {
-  throw new Error("ENCRYPTION_KEY yenye urefu wa angalau herufi 32 inahitajika");
+function getEncryptionKey(): string {
+  const key = process.env.ENCRYPTION_KEY?.trim();
+  if (!key || key.length < 32) {
+    throw new Error("ENCRYPTION_KEY yenye urefu wa angalau herufi 32 inahitajika");
+  }
+  return key;
 }
-
-const ENCRYPTION_KEY: string = configuredEncryptionKey;
 
 /**
  * Kuencrypt password ya MikroTik router kabla ya kuiweka kwenye database.
  * Hii inazuia mtu akivunja database asione passwords za router za wateja.
  */
 export function encrypt(text: string): string {
-  return CryptoJS.AES.encrypt(text, ENCRYPTION_KEY).toString();
+  return CryptoJS.AES.encrypt(text, getEncryptionKey()).toString();
 }
 
 /**
  * Kudecrypt password ya MikroTik router kutoka database.
  */
 export function decrypt(ciphertext: string): string {
-  const bytes = CryptoJS.AES.decrypt(ciphertext, ENCRYPTION_KEY);
+  const bytes = CryptoJS.AES.decrypt(ciphertext, getEncryptionKey());
   return bytes.toString(CryptoJS.enc.Utf8);
 }
 
@@ -28,7 +28,7 @@ export function decrypt(ciphertext: string): string {
  * Kuencrypt data nzima ya object
  */
 export function encryptObj(obj: Record<string, unknown>): string {
-  return CryptoJS.AES.encrypt(JSON.stringify(obj), ENCRYPTION_KEY).toString();
+  return CryptoJS.AES.encrypt(JSON.stringify(obj), getEncryptionKey()).toString();
 }
 
 /**
@@ -36,7 +36,7 @@ export function encryptObj(obj: Record<string, unknown>): string {
  */
 export function decryptObj<T>(ciphertext: string): T | null {
   try {
-    const bytes = CryptoJS.AES.decrypt(ciphertext, ENCRYPTION_KEY);
+    const bytes = CryptoJS.AES.decrypt(ciphertext, getEncryptionKey());
     const json = bytes.toString(CryptoJS.enc.Utf8);
     if (!json) return null;
     return JSON.parse(json) as T;
