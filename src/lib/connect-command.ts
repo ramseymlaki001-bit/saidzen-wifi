@@ -185,9 +185,13 @@ ${buildHotspotSetupCommand(appUrl)}
 ${buildApiCredentialCommand(vpnIp, token)}
 
 # 6. Jisajili kwenye tovuti (inajifanya yenyewe)
-/tool fetch url="${callback}" http-method=post \\
-  http-data="token=${token}&vpnIp=${vpnIp}" \\
-  mode=${fetchMode} as-value output=user
+:do {
+  :local registration [/tool fetch url="${callback}" http-method=post \
+    http-header-field="Content-Type: application/x-www-form-urlencoded" \
+    http-data=("token=${token}&vpnIp=${vpnIp}") \
+    mode=${fetchMode} as-value output=user]
+  :put ("SaidZen usajili: " . ($registration->"data"))
+} on-error={ :put "SaidZen ERROR: callback ya website imeshindikana. Hakikisha URL ni public na router ina internet." }
 
 ${buildPushSetupCommand(appUrl, token, fetchMode)}
 
@@ -234,9 +238,13 @@ ${detection}
 ${buildHotspotSetupCommand(appUrl)}
 
 # 3. Jisajili kwenye tovuti
-/tool fetch url="${callback}" http-method=post \\
-  http-data="${payload}" \\
-  mode=${fetchMode} as-value output=user
+:do {
+  :local registration [/tool fetch url="${callback}" http-method=post \
+    http-header-field="Content-Type: application/x-www-form-urlencoded" \
+    http-data=("${payload}") \
+    mode=${fetchMode} as-value output=user]
+  :put ("SaidZen usajili: " . ($registration->"data"))
+} on-error={ :put "SaidZen ERROR: callback ya website imeshindikana. Hakikisha URL ni public na router ina internet." }
 
 ${buildPushSetupCommand(appUrl, opts.token, fetchMode)}
 
