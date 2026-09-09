@@ -48,7 +48,7 @@ export default function WifiDirectoryPage() {
     e.preventDefault();
     const clean = customSlug.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "_");
     if (clean) {
-      router.push(`/wifi/${clean}`);
+      router.push(`/wifi/${encodeURIComponent(clean)}`);
     }
   }
 
@@ -176,11 +176,12 @@ export default function WifiDirectoryPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {filtered.map((h) => {
-                const slug = h.portalSlug || h.dashboardUsername || String(h.id);
+                const slug = h.portalSlug;
+                if (!slug) return null;
                 return (
                   <Link
                     key={h.id}
-                    href={`/wifi/${slug}`}
+                    href={`/wifi/${encodeURIComponent(slug)}`}
                     className="bg-slate-900/90 border border-slate-800 hover:border-emerald-500/80 rounded-2xl p-4 transition-all hover:scale-[1.01] hover:shadow-lg hover:shadow-emerald-500/5 group flex flex-col justify-between"
                   >
                     <div>

@@ -58,7 +58,10 @@ interface PurchaseResult {
 
 export default function WifiPortalPage() {
   const params = useParams();
-  const slug = String(params?.slug || "").toLowerCase();
+  const routeSlug = params?.slug;
+  const slug = (Array.isArray(routeSlug) ? routeSlug[0] : String(routeSlug || ""))
+    .trim()
+    .toLowerCase();
 
   const [tab, setTab] = useState<"use" | "buy">("use");
   const [hotspot, setHotspot] = useState<Hotspot | null>(null);
@@ -129,13 +132,24 @@ export default function WifiPortalPage() {
   async function handlePurchase(e: React.FormEvent) {
     e.preventDefault();
     if (!selectedPkg || !phone.trim()) return;
+    const normalizedPhone = phone.replace(/\D/g, "").replace(/^00/, "");
+    const localPhone = normalizedPhone.startsWith("255")
+      ? `0${normalizedPhone.slice(3)}`
+      : normalizedPhone;
+    if (!/^0(60|61|62|65|67|68|69|71|73|74|75|76|77|78|79)\d{7}$/.test(localPhone)) {
+      setPurchase({
+        success: false,
+        error: "Namba ya simu si sahihi. Tumia mfano: 0755 123 456",
+      });
+      return;
+    }
     setBuying(true);
     setPurchase(null);
     try {
       const res = await fetch("/api/portal/purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug, phone, packageId: selectedPkg }),
+        body: JSON.stringify({ slug, phone: normalizedPhone, packageId: selectedPkg }),
       });
       const d = await res.json();
 

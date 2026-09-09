@@ -55,10 +55,11 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const slug = String(body.slug || "").trim().toLowerCase();
-    const phone = String(body.phone || "").replace(/\D/g, "");
-    const packageId = parseInt(String(body.packageId || ""), 10);
+    const rawPhone = String(body.phone || "").replace(/\D/g, "");
+    const phone = rawPhone.startsWith("00") ? rawPhone.slice(2) : rawPhone;
+    const packageId = Number(body.packageId);
 
-    if (!slug || !phone || !packageId) {
+    if (!slug || !phone || !Number.isInteger(packageId) || packageId < 1) {
       return NextResponse.json(
         { error: "Weka namba ya simu na chagua kifurushi" },
         { status: 400 }
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
     // Namba ya simu iwe na umbizo la Tanzania
     let msisdn = phone;
     if (msisdn.startsWith("0")) msisdn = "255" + msisdn.slice(1);
-    if (!/^255(61|62|65|67|68|71|74|75|76|78)\d{7}$/.test(msisdn)) {
+    if (!/^255(60|61|62|65|67|68|69|71|73|74|75|76|77|78|79)\d{7}$/.test(msisdn)) {
       return NextResponse.json(
         { error: "Namba ya simu si sahihi. Tumia mfano: 0755 123 456" },
         { status: 400 }
