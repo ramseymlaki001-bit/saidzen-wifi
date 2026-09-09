@@ -15,9 +15,9 @@ export { getAppUrl };
 function buildHotspotSetupCommand(appUrl: string): string {
   const appHost = new URL(appUrl).hostname;
   return `# 3. Sanidi Hotspot ili mteja asitumie internet bure
-:local hsInterface "";
-:foreach bridgeId in=[/interface bridge find] do={ :set hsInterface [/interface bridge get $bridgeId name] };
-:if ([:len $hsInterface] = 0) do={ :set hsInterface "bridge" };
+:local bridgeIds [/interface bridge find];
+:if ([:len $bridgeIds] = 0) do={ :error "Hakuna bridge interface. Tengeneza bridge kwanza." };
+:local hsInterface [/interface bridge get [:pick $bridgeIds 0] name];
 
 :if ([:len [/ip hotspot profile find name="saidzen-profile"]] = 0) do={
   /ip hotspot profile add name=saidzen-profile login-by=http-chap,http-pap
@@ -60,42 +60,10 @@ function buildApiCredentialCommand(vpnIp: string, token: string): string {
 
 function buildPushSetupCommand(appUrl: string, token: string, fetchMode: string): string {
   const endpoint = `${appUrl}/api/router/push`;
-  const syncEndpoint = `${appUrl}/api/router/sync`;
-  return `# 7. Weka outbound push na local offline queue
-/system script remove [find name="saidzen-queue-sync"]
-/system script add name="saidzen-queue-sync" policy=read,write,test source={
-  :local queuePrefix "saidzen-q-"
-  :local identity [/system identity get name]
-  :local users [/ip hotspot active print count-only]
-  :local eventId ("evt-" . [:pick "${token}" 4 12] . "-" . [/system resource get uptime])
-  :local fileName ($queuePrefix . $eventId . ".txt")
-  :local queued 0
-  :foreach existingId in=[/file find] do={
-    :local existingName [/file get $existingId name]
-    :if ([:pick $existingName 0 [:len $queuePrefix]] = $queuePrefix) do={ :set queued ($queued + 1) }
-  }
-  :if (($queued < 100) and ([:len [/file find name=$fileName]] = 0)) do={
-    /file add name=$fileName contents=("eventId=" . $eventId . "&type=heartbeat&payload=" . $users . "|" . $identity)
-  }
-  :foreach fileId in=[/file find] do={
-    :local name [/file get $fileId name]
-    :if ([:pick $name 0 [:len $queuePrefix]] = $queuePrefix) do={
-      :local data [/file get $fileId contents]
-      :do {
-        :local response [/tool fetch url="${syncEndpoint}" http-method=post http-data=("token=${token}&" . $data) mode=${fetchMode} as-value output=user]
-        :if (($response->"status") = "finished") do={ /file remove $fileId }
-      } on-error={}
-    }
-  }
-}
-/system scheduler remove [find name="saidzen-queue-sync"]
-/system scheduler add name="saidzen-queue-sync" interval=00:00:30 on-event="/system script run saidzen-queue-sync"
-/system script run saidzen-queue-sync
-
-# 8. Weka outbound push: router ndiyo huanzisha mawasiliano
+  return `# 7. Weka outbound push: router ndiyo huanzisha mawasiliano
 /system script remove [find name="saidzen-push"]
 /system script add name="saidzen-push" policy=read,write,test source={
-  :local response [/tool fetch url="${endpoint}" http-method=post http-data="token=${token}" mode=${fetchMode} as-value output=user]
+  :local response [/tool fetch url="${endpoint}" http-method=post http-data="token=${token}" mode=${fetchMode} check-certificate=no as-value output=user]
   :local script ($response->"data")
   :if ([:len $script] > 0) do={ :execute [:parse $script] }
 }
@@ -189,7 +157,7 @@ ${buildApiCredentialCommand(vpnIp, token)}
   :local registration [/tool fetch url="${callback}" http-method=post \
     http-header-field="Content-Type: application/x-www-form-urlencoded" \
     http-data=("token=${token}&vpnIp=${vpnIp}") \
-    mode=${fetchMode} as-value output=user]
+    mode=${fetchMode} check-certificate=no as-value output=user]
   :put ("SaidZen usajili: " . ($registration->"data"))
 } on-error={ :put "SaidZen ERROR: callback ya website imeshindikana. Hakikisha URL ni public na router ina internet." }
 
@@ -242,7 +210,7 @@ ${buildHotspotSetupCommand(appUrl)}
   :local registration [/tool fetch url="${callback}" http-method=post \
     http-header-field="Content-Type: application/x-www-form-urlencoded" \
     http-data=("${payload}") \
-    mode=${fetchMode} as-value output=user]
+    mode=${fetchMode} check-certificate=no as-value output=user]
   :put ("SaidZen usajili: " . ($registration->"data"))
 } on-error={ :put "SaidZen ERROR: callback ya website imeshindikana. Hakikisha URL ni public na router ina internet." }
 
