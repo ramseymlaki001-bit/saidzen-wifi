@@ -129,7 +129,7 @@ export async function buildMikrotikCommand(opts: {
   const fetchMode = appUrl.startsWith("https://") ? "https" : "http";
 
   const command = `# ============================================================
-#  ${cfg.businessName.toUpperCase()} — Command ya Kuunganisha Router
+#  ${cfg.businessName.toUpperCase()} — Command ya Kuunganisha Router v2
 #  NAKILI MISTARI YOTE, kisha bandika kwenye WinBox → New Terminal
 # ============================================================
 
@@ -155,11 +155,10 @@ ${buildApiCredentialCommand(vpnIp, token)}
 # 6. Jisajili kwenye tovuti (inajifanya yenyewe)
 :do {
   :local registration [/tool fetch url="${callback}" http-method=post \
-    http-header-field="Content-Type: application/x-www-form-urlencoded" \
-    http-data=("token=${token}&vpnIp=${vpnIp}") \
+    http-data="token=${token}&vpnIp=${vpnIp}" \
     mode=${fetchMode} check-certificate=no as-value output=user]
-  :put ("SaidZen usajili: " . ($registration->"data"))
-} on-error={ :put "SaidZen ERROR: callback ya website imeshindikana. Hakikisha URL ni public na router ina internet." }
+  :put ("SaidZen usajili: " . ($registration->"status") . " - " . ($registration->"data"))
+} on-error={ :put "SaidZen ERROR: fetch ya activate imeshindikana. Jaribu: /tool fetch url=\"${callback}\" mode=${fetchMode} check-certificate=no output=user" }
 
 ${buildPushSetupCommand(appUrl, token, fetchMode)}
 
@@ -185,34 +184,23 @@ export async function buildDirectApiCommand(opts: {
   const callback = `${appUrl}/api/connect/activate`;
   const fetchMode = appUrl.startsWith("https://") ? "https" : "http";
 
-  const detection = opts.autoDetect
-    ? `:local rosVersion [/system resource get version]
-:local rosBoard [/system resource get board-name]
-:local rosIdentity [/system identity get name]`
-    : "";
-  const payload = opts.autoDetect
-    ? `token=${opts.token}&mode=auto&routerIp=${opts.routerIp}&routerOsVersion=$rosVersion&routerBoard=$rosBoard&routerIdentity=$rosIdentity`
-    : `token=${opts.token}&mode=direct&routerIp=${opts.routerIp}`;
-
   const command = `# ============================================================
-#  ${cfg.businessName.toUpperCase()} — Kuunganisha kwa IP ya Umma
+#  ${cfg.businessName.toUpperCase()} — Kuunganisha kwa IP ya Umma v2
 #  NAKILI MISTARI YOTE, kisha bandika kwenye WinBox → New Terminal
 # ============================================================
 
 # 1. Tambua taarifa za MikroTik (hakuna inbound API inayofunguliwa)
 /system identity set name="${opts.dashboardUsername}"
-${detection}
 
 ${buildHotspotSetupCommand(appUrl)}
 
 # 3. Jisajili kwenye tovuti
 :do {
   :local registration [/tool fetch url="${callback}" http-method=post \
-    http-header-field="Content-Type: application/x-www-form-urlencoded" \
-    http-data=("${payload}") \
+    http-data="token=${opts.token}&routerIp=${opts.routerIp}" \
     mode=${fetchMode} check-certificate=no as-value output=user]
-  :put ("SaidZen usajili: " . ($registration->"data"))
-} on-error={ :put "SaidZen ERROR: callback ya website imeshindikana. Hakikisha URL ni public na router ina internet." }
+  :put ("SaidZen usajili: " . ($registration->"status") . " - " . ($registration->"data"))
+} on-error={ :put "SaidZen ERROR: fetch ya activate imeshindikana. Jaribu: /tool fetch url=\"${callback}\" mode=${fetchMode} check-certificate=no output=user" }
 
 ${buildPushSetupCommand(appUrl, opts.token, fetchMode)}
 
