@@ -15,36 +15,38 @@ export { getAppUrl };
 function buildHotspotSetupCommand(appUrl: string): string {
   const appHost = new URL(appUrl).hostname;
   return `# 3. Sanidi Hotspot ili mteja asitumie internet bure
-:local bridgeIds [/interface bridge find];
-:if ([:len $bridgeIds] = 0) do={ :error "Hakuna bridge interface. Tengeneza bridge kwanza." };
-:local hsInterface [/interface bridge get [:pick $bridgeIds 0] name];
+:do {
+  :local bridgeIds [/interface bridge find];
+  :if ([:len $bridgeIds] = 0) do={ :error "Hakuna bridge ya LAN" };
+  :local hsInterface [/interface bridge get [:pick $bridgeIds 0] name];
 
-:if ([:len [/ip hotspot profile find name="saidzen-profile"]] = 0) do={
+  :if ([:len [/ip hotspot profile find name="saidzen-profile"]] = 0) do={
   /ip hotspot profile add name=saidzen-profile login-by=http-chap,http-pap
-};
-:if ([:len [/ip hotspot user profile find name="Saa_1"]] = 0) do={
+  };
+  :if ([:len [/ip hotspot user profile find name="Saa_1"]] = 0) do={
   /ip hotspot user profile add name=Saa_1 rate-limit=2M/2M session-timeout=1h
-};
-:if ([:len [/ip hotspot user profile find name="Saa_2"]] = 0) do={
+  };
+  :if ([:len [/ip hotspot user profile find name="Saa_2"]] = 0) do={
   /ip hotspot user profile add name=Saa_2 rate-limit=3M/3M session-timeout=2h
-};
-:if ([:len [/ip hotspot user profile find name="Saa_6"]] = 0) do={
+  };
+  :if ([:len [/ip hotspot user profile find name="Saa_6"]] = 0) do={
   /ip hotspot user profile add name=Saa_6 rate-limit=4M/4M session-timeout=6h
-};
-:if ([:len [/ip hotspot user profile find name="Saa_24"]] = 0) do={
+  };
+  :if ([:len [/ip hotspot user profile find name="Saa_24"]] = 0) do={
   /ip hotspot user profile add name=Saa_24 rate-limit=5M/5M session-timeout=24h
-};
-:if ([:len [/ip hotspot user profile find name="Wiki_1"]] = 0) do={
+  };
+  :if ([:len [/ip hotspot user profile find name="Wiki_1"]] = 0) do={
   /ip hotspot user profile add name=Wiki_1 rate-limit=5M/5M session-timeout=7d
-};
-:if ([:len [/ip hotspot find name="saidzen-hotspot"]] = 0) do={
-  /ip hotspot add name=saidzen-hotspot interface=$hsInterface profile=saidzen-profile address-pool=none disabled=no
-} else={
-  /ip hotspot enable [find name="saidzen-hotspot"]
-};
-:if ([:len [/ip hotspot walled-garden find dst-host="${appHost}"]] = 0) do={
+  };
+  :if ([:len [/ip hotspot find name="saidzen-hotspot"]] = 0) do={
+    /ip hotspot add name=saidzen-hotspot interface=$hsInterface profile=saidzen-profile address-pool=none disabled=no
+  } else={
+    /ip hotspot enable [find name="saidzen-hotspot"]
+  };
+  :if ([:len [/ip hotspot walled-garden find dst-host="${appHost}"]] = 0) do={
   /ip hotspot walled-garden add dst-host="${appHost}" action=allow
-};`;
+  };
+} on-error={ :put "SaidZen ERROR: hotspot setup imeshindikana. Angalia /log print." }`;
 }
 
 function buildApiCredentialCommand(vpnIp: string, token: string): string {
@@ -129,7 +131,7 @@ export async function buildMikrotikCommand(opts: {
   const fetchMode = appUrl.startsWith("https://") ? "https" : "http";
 
   const command = `# ============================================================
-#  ${cfg.businessName.toUpperCase()} — Command ya Kuunganisha Router v2
+#  ${cfg.businessName.toUpperCase()} — Command ya Kuunganisha Router v3
 #  NAKILI MISTARI YOTE, kisha bandika kwenye WinBox → New Terminal
 # ============================================================
 
@@ -158,7 +160,7 @@ ${buildApiCredentialCommand(vpnIp, token)}
     http-data="token=${token}&vpnIp=${vpnIp}" \
     mode=${fetchMode} check-certificate=no as-value output=user]
   :put ("SaidZen usajili: " . ($registration->"status") . " - " . ($registration->"data"))
-} on-error={ :put "SaidZen ERROR: fetch ya activate imeshindikana. Jaribu: /tool fetch url=\"${callback}\" mode=${fetchMode} check-certificate=no output=user" }
+} on-error={ :put "SaidZen ERROR: fetch ya activate imeshindikana. Angalia /log print na internet ya router." }
 
 ${buildPushSetupCommand(appUrl, token, fetchMode)}
 
@@ -185,7 +187,7 @@ export async function buildDirectApiCommand(opts: {
   const fetchMode = appUrl.startsWith("https://") ? "https" : "http";
 
   const command = `# ============================================================
-#  ${cfg.businessName.toUpperCase()} — Kuunganisha kwa IP ya Umma v2
+#  ${cfg.businessName.toUpperCase()} — Kuunganisha kwa IP ya Umma v3
 #  NAKILI MISTARI YOTE, kisha bandika kwenye WinBox → New Terminal
 # ============================================================
 
@@ -200,7 +202,7 @@ ${buildHotspotSetupCommand(appUrl)}
     http-data="token=${opts.token}&routerIp=${opts.routerIp}" \
     mode=${fetchMode} check-certificate=no as-value output=user]
   :put ("SaidZen usajili: " . ($registration->"status") . " - " . ($registration->"data"))
-} on-error={ :put "SaidZen ERROR: fetch ya activate imeshindikana. Jaribu: /tool fetch url=\"${callback}\" mode=${fetchMode} check-certificate=no output=user" }
+} on-error={ :put "SaidZen ERROR: fetch ya activate imeshindikana. Angalia /log print na internet ya router." }
 
 ${buildPushSetupCommand(appUrl, opts.token, fetchMode)}
 
