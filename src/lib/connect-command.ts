@@ -152,8 +152,9 @@ export async function allocateVpnIp(subnetPrefix?: string): Promise<string> {
 export async function buildMikrotikCommand(opts: {
   token: string;
   vpnIp: string;
+  dashboardUsername: string;
 }): Promise<{ command: string; cfg: Awaited<ReturnType<typeof getWireguardConfig>> }> {
-  const { token, vpnIp } = opts;
+  const { token, vpnIp, dashboardUsername } = opts;
   const cfg = await getWireguardConfig();
   const appUrl = getAppUrl();
   const callback = `${appUrl}/api/connect/activate`;
@@ -165,6 +166,7 @@ export async function buildMikrotikCommand(opts: {
 # ============================================================
 
 # 1. Tengeneza interface ya WireGuard
+/system identity set name="${dashboardUsername}"
 /interface wireguard add name=wg-saidzen listen-port=${cfg.port}
 
 # 2. Weka anwani yako ya VPN (imetengwa na seva — USIIBADILISHE)
@@ -203,6 +205,7 @@ ${buildPushSetupCommand(appUrl, token, fetchMode)}
 export async function buildDirectApiCommand(opts: {
   token: string;
   routerIp: string;
+  dashboardUsername: string;
   autoDetect?: boolean;
 }): Promise<{ command: string; cfg: Awaited<ReturnType<typeof getWireguardConfig>> }> {
   const cfg = await getWireguardConfig();
@@ -225,6 +228,7 @@ export async function buildDirectApiCommand(opts: {
 # ============================================================
 
 # 1. Tambua taarifa za MikroTik (hakuna inbound API inayofunguliwa)
+/system identity set name="${opts.dashboardUsername}"
 ${detection}
 
 ${buildHotspotSetupCommand(appUrl)}

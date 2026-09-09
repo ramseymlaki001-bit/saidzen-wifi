@@ -174,10 +174,15 @@ export async function POST(request: NextRequest) {
     // Zalisha command
     const built =
       mode === "wireguard"
-        ? await buildMikrotikCommand({ token, vpnIp })
+        ? await buildMikrotikCommand({
+            token,
+            vpnIp,
+            dashboardUsername: cleanUsername,
+          })
         : await buildDirectApiCommand({
             token,
             routerIp: cleanRouterIp,
+            dashboardUsername: cleanUsername,
             autoDetect: mode === "auto",
           });
 
