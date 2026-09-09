@@ -81,11 +81,13 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    let [pending] = await db
-      .select()
-      .from(routerCommands)
-      .where(and(eq(routerCommands.clientId, client.id), eq(routerCommands.status, "pending")))
-      .limit(1);
+    let pending: (typeof routerCommands.$inferSelect) | undefined = (
+      await db
+        .select()
+        .from(routerCommands)
+        .where(and(eq(routerCommands.clientId, client.id), eq(routerCommands.status, "pending")))
+        .limit(1)
+    )[0];
 
     if (!pending) {
       pending = await waitForRouterCommand(client.id);

@@ -85,12 +85,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const portNumber = parseInt(String(apiPort), 10) || 8728;
+    const portNumber = Number(apiPort);
+    if (!Number.isInteger(portNumber) || portNumber < 1 || portNumber > 65535) {
+      return NextResponse.json(
+        { error: "API port si sahihi. Tumia namba kati ya 1 na 65535, kwa kawaida 8728." },
+        { status: 400 }
+      );
+    }
+
+    const cleanApiUsername = String(apiUsername).trim();
+    if (!cleanApiUsername) {
+      return NextResponse.json(
+        { error: "Username ya MikroTik inahitajika." },
+        { status: 400 }
+      );
+    }
 
     // Test connection first
     const testConn = {
       host: routerIp.trim(),
-      username: apiUsername.trim(),
+      username: cleanApiUsername,
       encryptedPassword: encrypt(apiPassword),
       port: portNumber,
     };

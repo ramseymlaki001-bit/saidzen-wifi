@@ -525,19 +525,18 @@ export default function SupportPage() {
               </h4>
               <p className="text-sm text-rose-600">{diagnostics.message}</p>
               {diagnostics.networkHint && (
-                <p className="mt-3 rounded-lg bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900 text-left">
-                  💡 {diagnostics.networkHint}
-                              <div className="mt-3 p-3 bg-white rounded-lg border border-rose-200 text-xs text-slate-600 space-y-1 text-left">
-                <p className="font-bold">Mambo ya Kuangalia:</p>
-                <p>1. Je, router iko waka (imeunganishwa na umeme)?</p>
-                <p>2. Je, IP ya router ({diagnostics.routerIp}) ni sahihi?</p>
-                <p>
-                  3. Je, API imewashwa? (WinBox → IP → Services → api → enabled)
-                </p>
-                <p>
-                  4. Je, WireGuard VPN ipo kwenye seva yetu? (Angalia WireGuard config)
-                </p>
-              </div>
+                <div className="mt-3 rounded-lg bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900 text-left">
+                  <p className="font-bold mb-2">💡 Kidokezo cha Mtandao:</p>
+                  <p>{diagnostics.networkHint}</p>
+                  <div className="mt-3 p-3 bg-white rounded-lg border border-rose-200 text-xs text-slate-600 space-y-1 text-left">
+                    <p className="font-bold">Mambo ya Kuangalia:</p>
+                    <p>1. Je, router iko waka (imeunganishwa na umeme)?</p>
+                    <p>2. Je, IP ya router ({diagnostics.routerIp}) ni sahihi?</p>
+                    <p>3. Je, API imewashwa? (WinBox → IP → Services → api → enabled)</p>
+                    <p>4. Je, WireGuard VPN ipo kwenye seva yetu? (Angalia WireGuard config)</p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

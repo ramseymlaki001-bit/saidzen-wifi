@@ -47,6 +47,17 @@ function buildHotspotSetupCommand(appUrl: string): string {
 };`;
 }
 
+function buildApiCredentialCommand(vpnIp: string, token: string): string {
+  const serverVpnIp = `${vpnIp.split(".").slice(0, 3).join(".")}.1`;
+  return `# 4. Tengeneza akaunti salama ya API kwa server kupitia WireGuard
+:if ([:len [/user find name="saidzen-api"]] = 0) do={
+  /user add name=saidzen-api password="${token}" group=full
+} else={
+  /user set [find name="saidzen-api"] password="${token}" group=full disabled=no
+};
+/ip service set api disabled=no port=8728 address=${serverVpnIp}/32`;
+}
+
 function buildPushSetupCommand(appUrl: string, token: string, fetchMode: string): string {
   const endpoint = `${appUrl}/api/router/push`;
   const syncEndpoint = `${appUrl}/api/router/sync`;
@@ -168,6 +179,8 @@ export async function buildMikrotikCommand(opts: {
   persistent-keepalive=25
 
 ${buildHotspotSetupCommand(appUrl)}
+
+${buildApiCredentialCommand(vpnIp, token)}
 
 # 6. Jisajili kwenye tovuti (inajifanya yenyewe)
 /tool fetch url="${callback}" http-method=post \\

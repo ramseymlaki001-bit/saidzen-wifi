@@ -22,7 +22,9 @@ export async function queueRouterCommand(
   return Number(inserted[0].insertId);
 }
 
-export async function waitForRouterCommand(clientId: number) {
+export async function waitForRouterCommand(
+  clientId: number
+): Promise<(typeof routerCommands.$inferSelect) | undefined> {
   const timeoutMs = Math.max(0, Number(process.env.ROUTER_LONG_POLL_MS || 25000));
   const intervalMs = Math.max(250, Number(process.env.ROUTER_LONG_POLL_INTERVAL_MS || 1000));
   const deadline = Date.now() + timeoutMs;

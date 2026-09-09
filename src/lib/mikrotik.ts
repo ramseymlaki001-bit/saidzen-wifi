@@ -107,6 +107,20 @@ function explainError(err: unknown, host: string, port: number): {
     };
   if (code === "ENOTFOUND")
     return { code, message: `Anwani ${host} haipatikani (DNS).` };
+  if (code === "EAI_AGAIN")
+    return { code, message: `DNS ya ${host} haijapatikana kwa sasa. Jaribu tena.` };
+  if (code === "EADDRNOTAVAIL")
+    return { code, message: `Seva haiwezi kutumia anwani ${host}. Hakikisha IP/VPN imewekwa kwenye seva.` };
+  if (code === "EACCES")
+    return { code, message: `Seva haina ruhusa ya kufungua muunganisho kwenda ${host}:${port}.` };
+  if (code === "CREDENTIALS_MISSING")
+    return {
+      code,
+      message:
+        "Nenosiri la MikroTik halijawekwa. Kwa router iliyounganishwa kwa /connect, tumia outbound push au weka API username/password kwenye Mipangilio.",
+    };
+  if (code === "INVALID_CONNECTION")
+    return { code, message: raw };
   if (/invalid user name or password|login failure|cannot log in/i.test(raw))
     return {
       code: "AUTH_FAILED",
@@ -122,6 +136,18 @@ function explainError(err: unknown, host: string, port: number): {
 async function connectToRouter(
   conn: MikroTikConnection
 ): Promise<{ client: any; error?: undefined } | { client?: undefined; error: unknown }> {
+  const host = conn.host.trim();
+  const username = conn.username.trim();
+  const port = Number(conn.port);
+  if (!host || !username || !Number.isInteger(port) || port < 1 || port > 65535) {
+    return {
+      error: {
+        code: "INVALID_CONNECTION",
+        message: "Taarifa za MikroTik si sahihi: host, username, na port (1-65535) vinahitajika.",
+      },
+    };
+  }
+
   try {
     const mod: any = await import("routeros");
     // Maktaba ya "routeros" inatoa `RouterOSAPI` (si default export).
@@ -148,12 +174,20 @@ async function connectToRouter(
         },
       };
     }
+    if (!password) {
+      return {
+        error: {
+          code: "CREDENTIALS_MISSING",
+          message: "Nenosiri la MikroTik halijawekwa.",
+        },
+      };
+    }
 
     const client = new Client({
-      host: conn.host,
-      user: conn.username,
+      host,
+      user: username,
       password,
-      port: conn.port,
+      port,
       // MUHIMU: maktaba ya "routeros" hutumia SEKUNDE (si milisekunde).
       timeout: CONNECT_TIMEOUT_SEC,
     });
@@ -163,7 +197,7 @@ async function connectToRouter(
     await withTimeout(
       client.connect(),
       (CONNECT_TIMEOUT_SEC + 2) * 1000,
-      `Router ${conn.host}:${conn.port} haijibu ndani ya sekunde ${CONNECT_TIMEOUT_SEC}`
+      `Router ${host}:${port} haijibu ndani ya sekunde ${CONNECT_TIMEOUT_SEC}`
     );
     return { client };
   } catch (err) {

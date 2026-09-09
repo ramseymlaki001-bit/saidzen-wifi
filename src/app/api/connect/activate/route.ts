@@ -151,8 +151,8 @@ export async function POST(request: NextRequest) {
     });
 
     // ── 2. Sajili router ──────────────────────────────────────
-    // Nenosiri la API: tumia ile ya chaguo-msingi; mteja ataiweka kwenye
-    // Mipangilio baadaye (hatuhifadhi nenosiri wazi kwenye token).
+    // Command ya WireGuard huunda saidzen-api kwa password ya token.
+    // Hifadhi token ikiwa encrypted ili server itumie API kupitia VPN.
     const { encrypt } = await import("@/lib/encryption");
 
     const subscriptionEnd = new Date();
@@ -169,9 +169,9 @@ export async function POST(request: NextRequest) {
         portalSlug,
         businessName: pending.businessName,
         location: pending.location,
-        routerIp: reportedRouterIp || (detectedIp !== "haijulikani" ? detectedIp : vpnIp || "0.0.0.0"),
-        routerUsername: "admin",
-        routerPasswordEncrypted: encrypt(""),
+        routerIp: vpnIp || reportedRouterIp || (detectedIp !== "haijulikani" ? detectedIp : "0.0.0.0"),
+        routerUsername: "saidzen-api",
+        routerPasswordEncrypted: encrypt(token),
         routerPort: 8728,
         vpnIp,
         routerPushToken: token,
