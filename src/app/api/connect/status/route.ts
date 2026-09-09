@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { connectionTokens, clients } from "@/db/schema";
-import { eq, gt } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 /**
  * KUANGALIA HALI YA MUUNGANISHO
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const [entry] = await db
+    let [entry] = await db
       .select({
         status: connectionTokens.status,
         businessName: connectionTokens.businessName,
@@ -51,6 +51,41 @@ export async function GET(request: NextRequest) {
           headers: { "Cache-Control": "no-store, max-age=0" },
         }
       );
+    }
+
+    // Ikiwa callback ilitengeneza client lakini ikashindwa kuweka token status,
+    // tumia routerPushToken ileile kurekebisha hali bila kuhitaji command mpya.
+    if (entry.status === "pending" && !entry.clientId) {
+      const [registeredClient] = await db
+        .select({
+          id: clients.id,
+          routerIp: clients.routerIp,
+          vpnIp: clients.vpnIp,
+          status: clients.status,
+          subscriptionEnd: clients.subscriptionEnd,
+        })
+        .from(clients)
+        .where(eq(clients.routerPushToken, token))
+        .limit(1);
+
+      if (registeredClient) {
+        const connectedAt = new Date();
+        await db
+          .update(connectionTokens)
+          .set({
+            status: "connected",
+            clientId: registeredClient.id,
+            connectedAt,
+          })
+          .where(eq(connectionTokens.token, token));
+
+        entry = {
+          ...entry,
+          status: "connected",
+          clientId: registeredClient.id,
+          connectedAt,
+        };
+      }
     }
 
     // Ikiwa imeshaunganishwa, onyesha maelezo ya router

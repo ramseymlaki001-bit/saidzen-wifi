@@ -71,11 +71,11 @@ export async function POST(request: NextRequest) {
     }
 
     const cleanRouterIp = normalizeRouterIp(routerIp);
-    if ((mode === "direct" || mode === "auto") && !cleanRouterIp) {
+    if (mode === "direct" && !cleanRouterIp) {
       return NextResponse.json(
         {
           error:
-            "Weka Public IP ya router pekee, mfano 41.59.102.77. Usitumie http://, /24, au 192.168.x.x.",
+            "Kwa Direct API, weka Public IP ya router pekee, mfano 41.59.102.77. Usitumie http://, /24, au 192.168.x.x.",
         },
         { status: 400 }
       );

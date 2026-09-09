@@ -238,7 +238,7 @@ export default function ConnectPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  IP ya Router *
+                  IP ya Router {form.mode === "direct" ? "*" : "(si lazima)"}
                 </label>
                 <input
                   type="text"

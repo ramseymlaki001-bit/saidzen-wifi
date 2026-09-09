@@ -134,6 +134,32 @@ export async function POST(request: NextRequest) {
 
     const pending = tokenEntry;
 
+    // Callback inaweza kurudiwa na RouterOS baada ya timeout. Usianzishe
+    // user/client mpya; rudisha usajili uliopo na rekebisha token status.
+    const [existingClient] = await db
+      .select({ id: clients.id })
+      .from(clients)
+      .where(eq(clients.routerPushToken, token))
+      .limit(1);
+
+    if (existingClient) {
+      await db
+        .update(connectionTokens)
+        .set({
+          status: "connected",
+          clientId: existingClient.id,
+          connectedAt: new Date(),
+        })
+        .where(eq(connectionTokens.id, pending.id));
+
+      return NextResponse.json({
+        success: true,
+        alreadyConnected: true,
+        message: "Router hii tayari imesajiliwa kikamilifu.",
+        clientId: existingClient.id,
+      });
+    }
+
     const detectedIp = detectRouterIp(request);
     // Tumia IP iliyotengwa na seva (si ile inayojiripoti, kwa usalama)
     const vpnIp =
@@ -142,10 +168,16 @@ export async function POST(request: NextRequest) {
         : reportedVpnIp || null;
 
     // ── 1. Tengeneza akaunti ya mtumiaji ──────────────────────
-    const newUser = await insertReturning<typeof users.$inferSelect>(users, {
-        name: pending.businessName,
-        username: pending.dashboardUsername,
-        phone: pending.contactPhone,
+    const [existingUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.username, pending.dashboardUsername))
+      .limit(1);
+
+    const newUser = existingUser || await insertReturning<typeof users.$inferSelect>(users, {
+      name: pending.businessName,
+      username: pending.dashboardUsername,
+      phone: pending.contactPhone,
       passwordHash: pending.dashboardPasswordHash,
       role: "vendor",
     });

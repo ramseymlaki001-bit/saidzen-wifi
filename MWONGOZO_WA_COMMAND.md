@@ -34,6 +34,12 @@ MTEJA                    TOVUTI                      ROUTER (MikroTik)
 
 ## 🔧 Usanidi wa Lazima (kwenye seva)
 
+> **Njia inayopendekezwa kwa Vercel:** Router ndiyo huanzisha mawasiliano ya
+> HTTPS kwenda website kupitia `/api/connect/activate`, `/api/router/push`, na
+> `/api/router/sync`. Huhitaji kufungua port 8728 ya router kwa internet, na
+> huhitaji WireGuard kwa usajili wa kawaida. WireGuard ibaki kwa VPS yenye
+> mahitaji maalum ya kuifikia router moja kwa moja.
+
 Kabla ya kutumia kipengele hiki, weka vigezo hivi kwenye `.env`:
 
 ```bash
@@ -50,7 +56,7 @@ WIREGUARD_PORT=51820
 # Mtandao wa VPN (chaguo-msingi: 10.8.0.0/24)
 WIREGUARD_SUBNET_PREFIX=10.8.0
 
-# Anwani ya tovuti (router hutumia hii kujisajili)
+# Anwani ya public ya tovuti (router hutumia HTTPS kujisajili na kusync)
 NEXT_PUBLIC_APP_URL=http://203.0.113.10:3000
 ```
 
@@ -140,7 +146,7 @@ Kwa hiyo hakuna mgongano wa IP hata kama wateja wanajiunga kwa wakati mmoja.
 | Tatizo | Suluhisho |
 |--------|-----------|
 | **Command ina `<placeholder>`** | Weka `WIREGUARD_SERVER_PUBLIC_KEY` na `WIREGUARD_SERVER_ENDPOINT` kwenye `.env`, kisha `pm2 restart saidzen` |
-| **Hali inabaki "INASUBIRI"** | `/tool fetch` imeshindikana. Angalia kwenye router: `/tool fetch` inahitaji DNS. Tumia IP badala ya domain kwenye `NEXT_PUBLIC_APP_URL` |
+| **Hali inabaki "INASUBIRI"** | Hakikisha `POST /api/connect/activate` inafika website, si `/api/router/push` pekee. Kwenye Vercel angalia logs za activate; kwenye router tumia `/log print` na ujaribu `/tool fetch` kwa URL ya public |
 | **RouterOS v6 haina WireGuard** | Sakinisha kifurushi cha `wireguard`, au tumia mode ya **"IP ya Umma"** |
 | **"Token si halali"** | Imeisha masaa 24 au imetumika tayari. Omba command mpya |
 | **Bandari 51820 imezibwa** | Fungua UDP 51820 kwenye Security Group ya Tencent **na** `ufw` |
@@ -161,7 +167,7 @@ Kwa hiyo hakuna mgongano wa IP hata kama wateja wanajiunga kwa wakati mmoja.
 | Njia | Njia | Matumizi |
 |------|------|----------|
 | `/api/connect/generate` | POST | Zalisha command + tengwa IP + token |
-| `/api/connect/activate` | POST | **Inaitwa na router** — inajisajili |
+| `/api/connect/activate` | POST | **Inaitwa na router** — inajisajili, salama hata ikirudiwa |
 | `/api/connect/status?token=X` | GET | Angalia hali (pending/connected/expired) |
 
 ---
