@@ -72,6 +72,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, received: events.length, accepted });
   } catch (error) {
     console.error("Router sync failed", error);
-    return NextResponse.json({ success: true, accepted: 0, retry: true }, { status: 200 });
+    return NextResponse.json(
+      { success: false, accepted: 0, retry: true },
+      {
+        status: 503,
+        headers: {
+          "Cache-Control": "no-store, max-age=0",
+          "Retry-After": "10",
+        },
+      }
+    );
   }
 }

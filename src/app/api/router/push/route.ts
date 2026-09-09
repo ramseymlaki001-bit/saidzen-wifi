@@ -125,9 +125,15 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Router push failed", error);
-    return new NextResponse(NOOP_SCRIPT, {
-      status: 200,
-      headers: { "content-type": "text/plain; charset=utf-8" },
-    });
+    return NextResponse.json(
+      { error: "Mawasiliano ya router hayapatikani. Jaribu tena." },
+      {
+        status: 503,
+        headers: {
+          "Cache-Control": "no-store, max-age=0",
+          "Retry-After": "10",
+        },
+      }
+    );
   }
 }

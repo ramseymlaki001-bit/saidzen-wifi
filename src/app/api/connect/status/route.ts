@@ -56,53 +56,44 @@ export async function GET(request: NextRequest) {
     // Ikiwa callback ilitengeneza client lakini ikashindwa kuweka token status,
     // tumia routerPushToken ileile kurekebisha hali bila kuhitaji command mpya.
     if (entry.status === "pending" && !entry.clientId) {
-      const [registeredClient] = await db
-        .select({
-          id: clients.id,
-          routerIp: clients.routerIp,
-          vpnIp: clients.vpnIp,
-          status: clients.status,
-          subscriptionEnd: clients.subscriptionEnd,
-        })
-        .from(clients)
-        .where(eq(clients.routerPushToken, token))
-        .limit(1);
+      try {
+        const [registeredClient] = await db
+          .select({ id: clients.id })
+          .from(clients)
+          .where(eq(clients.routerPushToken, token))
+          .limit(1);
 
-      if (registeredClient) {
-        const connectedAt = new Date();
-        await db
-          .update(connectionTokens)
-          .set({
+        if (registeredClient) {
+          const connectedAt = new Date();
+          await db
+            .update(connectionTokens)
+            .set({
+              status: "connected",
+              clientId: registeredClient.id,
+              connectedAt,
+            })
+            .where(eq(connectionTokens.token, token));
+
+          entry = {
+            ...entry,
             status: "connected",
             clientId: registeredClient.id,
             connectedAt,
-          })
-          .where(eq(connectionTokens.token, token));
-
-        entry = {
-          ...entry,
-          status: "connected",
-          clientId: registeredClient.id,
-          connectedAt,
-        };
+          };
+        }
+      } catch (reconcileError) {
+        console.error("Connection status reconciliation failed", {
+          token: `${token.slice(0, 8)}...`,
+          error: reconcileError,
+        });
       }
     }
 
-    // Ikiwa imeshaunganishwa, onyesha maelezo ya router
+    // Ikiwa imeshaunganishwa, token tayari ina taarifa zote zinazohitajika
+    // na ukurasa wa kuunganisha. Usifanye query ya ziada ya clients hapa:
+    // status endpoint inapaswa kufanya kazi hata schema ya clients ikiwa nyuma
+    // ya schema ya token.
     if (entry.status === "connected" && entry.clientId) {
-      const [client] = await db
-        .select({
-          id: clients.id,
-          businessName: clients.businessName,
-          routerIp: clients.routerIp,
-          vpnIp: clients.vpnIp,
-          status: clients.status,
-          subscriptionEnd: clients.subscriptionEnd,
-        })
-        .from(clients)
-        .where(eq(clients.id, entry.clientId))
-        .limit(1);
-
       return NextResponse.json({
         status: "connected",
         message: "Imeunganishwa kikamilifu! Sasa unaweza kuingia na kuzalisha vocha.",
@@ -111,7 +102,7 @@ export async function GET(request: NextRequest) {
         assignedVpnIp: entry.assignedVpnIp,
         detectedRouterIp: entry.detectedRouterIp,
         connectedAt: entry.connectedAt,
-        client,
+        clientId: entry.clientId,
       }, { headers: { "Cache-Control": "no-store, max-age=0" } });
     }
 
@@ -133,7 +124,13 @@ export async function GET(request: NextRequest) {
       ),
     }, { headers: { "Cache-Control": "no-store, max-age=0" } });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Kosa la ndani";
-    return NextResponse.json({ error: msg }, { status: 500 });
+    console.error("Connection status failed", {
+      error: err,
+      url: request.url,
+    });
+    return NextResponse.json(
+      { status: "error", error: "Hali ya muunganisho haijasomeka. Jaribu refresh." },
+      { status: 503, headers: { "Cache-Control": "no-store, max-age=0" } }
+    );
   }
 }
