@@ -17,7 +17,10 @@ export async function GET(request: NextRequest) {
     if (!token) {
       return NextResponse.json(
         { error: "Token inahitajika" },
-        { status: 400 }
+        {
+          status: 400,
+          headers: { "Cache-Control": "no-store, max-age=0" },
+        }
       );
     }
 
@@ -43,7 +46,10 @@ export async function GET(request: NextRequest) {
           status: "not_found",
           message: "Token haipatikani. Omba command mpya.",
         },
-        { status: 404 }
+        {
+          status: 404,
+          headers: { "Cache-Control": "no-store, max-age=0" },
+        }
       );
     }
 
@@ -71,7 +77,7 @@ export async function GET(request: NextRequest) {
         detectedRouterIp: entry.detectedRouterIp,
         connectedAt: entry.connectedAt,
         client,
-      });
+      }, { headers: { "Cache-Control": "no-store, max-age=0" } });
     }
 
     // Bado inasubiri
@@ -90,7 +96,7 @@ export async function GET(request: NextRequest) {
         0,
         Math.floor((new Date(entry.expiresAt).getTime() - Date.now()) / 1000)
       ),
-    });
+    }, { headers: { "Cache-Control": "no-store, max-age=0" } });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Kosa la ndani";
     return NextResponse.json({ error: msg }, { status: 500 });

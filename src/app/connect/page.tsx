@@ -41,7 +41,10 @@ export default function ConnectPage() {
   // Kagua hali ya muunganisho kila sekunde 3
   const checkStatus = useCallback(async (token: string) => {
     try {
-      const res = await fetch(`/api/connect/status?token=${token}`);
+      const res = await fetch(
+        `/api/connect/status?token=${encodeURIComponent(token)}&_=${Date.now()}`,
+        { cache: "no-store" }
+      );
       const data = await res.json();
       setStatus(data);
     } catch {
